@@ -1,0 +1,2073 @@
+### 0422
+
+# 目次
+
+- アンケートのリンクの説明
+- データの集め方
+- 前処理
+- オクトパースについて
+
+# アンケートリンクの構成
+
+`https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1013102`
+
+---
+
+### 🔗 URLの構成要素
+
+- **クエリパラメータ**:
+    - `am_syllabus=11`シラバス表示モードを指定しています
+    - `am_nendo=2024`:対象の年度（2024年度）を指定しています
+    - `am_gakki=1`:学期（1学期、通常は前期）を指定しています
+    - `am_jugycd=1013102`:授業コードを指定しています
+
+---
+
+### データについて
+
+**学科**
+
+- 情報工学部
+- 工学部
+- 社会学部
+
+**分け方**
+
+- 前期
+- 後期
+
+**年代**
+
+- 2019年
+- 2020
+- 2021
+- 2022
+- 2023
+- 2024
+
+---
+
+### データの集め方
+
+![**myfit上のシラバス**](attachment:3b0e5138-a376-46ba-8448-869989e825d5:image.png)
+
+**myfit上のシラバス**
+
+- すべてを網羅的にすくえている証明ができない
+→参考にする講義を、さだめる？
+- シラバスの特性上、
+
+### オクトパース
+
+### ベースURL:
+
+```
+https://unipa.fit.ac.jp/fit_cas/Cas303.do
+
+```
+
+### クエリパラメータ：
+
+| パラメータ名 | 意味 | 例 |
+| --- | --- | --- |
+| `am_syllabus` | シラバスモード（固定値1） | `1` |
+| `am_nendo` | 対象の年度 | `2024` |
+| `am_gakki` | 対象学期（1＝前期、2＝後期） | `1` |
+| `am_jugycd` | 授業コード | `1013102` |
+
+---
+
+## 🏗️ **オクトパースでの設定手順**
+
+### ① **新規タスク作成**
+
+- URLにパラメータを埋め込むテンプレート形式で作成（例：リスト形式で複数URLを流し込む）
+
+### ② **変数設定（ループに対応）**
+
+- 年度：2019〜2024
+- 学期：1, 2
+- 授業コード：予め取得した範囲
+
+### ③ **ワークフローの構成例**
+
+```
+→ 入力URLリスト（年度、学期、授業コードを変数でループ）
+　└→ ページを読み込み
+　　 └→ タイトル or 教員名を取得
+　　 └→ 学科・授業名などを取得
+　　 └→ 必要ならアンケートURLを取得
+
+```
+
+### ④ **データの分類（抽出後に処理）**
+
+- 抽出後のExcelまたはCSVにて、以下の分類キーを作成：
+    - 年度
+    - 学期
+    - 学科（授業名に含まれるキーワードやコードで判別）
+
+---
+
+## 🔄 **変数ループ生成の例**
+
+```
+年度: 2019, 2020, ..., 2024
+学期: 1, 2
+授業コード: 1010001〜1029999 の範囲（想定される番号）
+
+```
+
+---
+
+### 0508
+
+[授業アンケートシステム1.json](attachment:71ee08a9-416c-4345-892c-7845e2a29b49:授業アンケートシステム1.json)
+
+### 🏗 **Octoparse（オクトパース）とは？**
+
+> Octoparse は **ノーコードのWebスクレイピングツール** です。
+ブラウザ上で見えているWebサイトのデータを、プログラミングなしで自動的に収集・抽出できます。
+具体的には：
+✅ **Webページのテキスト、画像、リンク、表、商品データなどを自動で取得**
+✅ **Google、Amazon、楽天などの公開情報を収集**
+✅ **大規模なデータをExcel、CSV、JSON、データベース形式で出力**
+✅ **定期的なデータ更新（スケジューリング）も可能**
+> 
+
+### 🔧 **主な機能**
+
+| 機能 | 説明 |
+| --- | --- |
+| **ノーコード設計** | 画面上の操作（クリック、選択）だけでスクレイピングフローを組める。 |
+| **クラウド実行** | Octoparseのクラウドサーバーでジョブを実行できる（PCを閉じても動く）。 |
+| **スケジュール設定** | 取得したい頻度（例：毎日、毎週）を指定し、自動でデータ収集。 |
+| **IPローテーション** | 複数のIPを使い分けてサイト側のブロックを回避（有料プラン向け）。 |
+| **API連携** | 外部システムに自動でデータ連携可能。 |
+| **テンプレート** | よく使うサイト（Amazon、Yahoo、食べログなど）のスクレイピング設定が最初から用意されている。 |
+
+### 💻 **使い方の流れ**
+
+1️⃣ **対象ページを指定する**
+
+スクレイピングしたいURLを入力。
+
+- データリンク
+    
+    https://docs.google.com/spreadsheets/d/1LkOOlB3ik2sDgySoA_ayQEnUrdek_p_mkgJ3FskmFtQ/edit?usp=sharing
+    
+    ```jsx
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1532202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1532203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1532204
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1532205
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1532206
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1532207
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1532208
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1532209
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1533101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1533102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1533104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1533105
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1533201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1533202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1533203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1533204
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1543101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1543102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549301
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549302
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549303
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549304
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549305
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549306
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549307
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549308
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549309
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549310
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549311
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549312
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549313
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549314
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549315
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549316
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549317
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549318
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549319
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1549320
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1611108
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1611210
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1611211
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1611212
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1612108
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1612210
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1612211
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1612212
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1613101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1613102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1613103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1613104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1613202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1613203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1613204
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1613205
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1614102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1614201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1614202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1614203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1614204
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1621101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1621102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1621103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1621104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1621105
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1621106
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1621201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1622101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1622102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1622103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1622104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1622105
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1622106
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1622201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1623101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1623103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1623104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1623105
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1623106
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1623107
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1623108
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1623109
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1623110
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1623111
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1623201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1623202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1623203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1623204
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1623205
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1623206
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1623207
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1623208
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1623209
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1623210
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1623211
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1623212
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1623213
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1623302
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1624101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1631101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1631102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1631201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1631202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1631203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1632103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1632104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1632201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1632202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1632203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1633101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1633102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1633103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1633104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1633105
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1633106
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1633107
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1633109
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1633110
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1633111
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1633112
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1633201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1633202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1633203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1633204
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1633205
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1633206
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1633207
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1633308
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1643101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1643102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1643103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1643104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1643105
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1649302
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1649303
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1649304
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1649305
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1649306
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1649307
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1649308
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1649309
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1649310
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1649311
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1649312
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1649313
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1649314
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1711101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1711102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1711103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1711104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1711105
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1711106
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1711107
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1711108
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1711109
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1711201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1711202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1711203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1711204
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1711205
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1711206
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1711207
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1712101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1712102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1712103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1712104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1712105
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1712106
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1712107
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1712108
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1712109
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1712201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1712202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1712203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1712204
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1712205
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1712206
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1712207
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1713101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1713102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1713103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1713201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1713202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1713203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1713204
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1713205
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1713206
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1713207
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1713208
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1713209
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1721101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1721102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1721103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1721104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1721201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1721202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1721203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1721204
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1722101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1722102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1722103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1722104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1722201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1722202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1722203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1722204
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1723101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1723102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1723103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1723104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1723105
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1723106
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1723107
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1723108
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1723109
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1723201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1723202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1723203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1723204
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1723205
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1723206
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1723207
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1723208
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1723209
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1723210
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1723211
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1731101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1731102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1731103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1731201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1731202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1731203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1732101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1732102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1732103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1732201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1732202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1732203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1733101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1733102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1733103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1733104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1733105
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1733106
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1733107
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1733108
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1733109
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1733110
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1733201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1733202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1733203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1733204
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1733205
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1733206
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1733207
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1743101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1743102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1749301
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1749302
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1749303
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1749304
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1749305
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1749306
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1749307
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1749308
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1749309
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1749310
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1749311
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1749312
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1811101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1811201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1811202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1812101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1812201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1812202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1813101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1813102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1813103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1813104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1813105
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1813107
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1813108
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1813109
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1813110
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1813111
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1813112
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1813202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1813205
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1813206
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1813207
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1813208
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1813209
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1813210
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1813211
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1813212
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1813213
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1813214
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1813306
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1823101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1823102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1823104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1823105
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1823106
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1823108
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1823109
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1823110
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1823111
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1823112
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1823113
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1823201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1823202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1823203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1823204
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1823205
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1823206
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1823207
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1823208
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1823209
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1823210
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1823211
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1823212
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1823303
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1823307
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1824102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1824201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1824202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833105
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833106
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833108
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833109
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833110
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833112
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833113
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833114
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1833201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1833202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1833203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1833204
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1833205
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1833206
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1833207
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1833208
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833311
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833315
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833316
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833317
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833318
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833319
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833320
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833321
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833322
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833323
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833324
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833325
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833326
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833327
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1833328
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1834101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1843101
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1843102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1843103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1843201
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1849301
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1849302
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1849303
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1849304
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1849305
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1849306
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1849307
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1849308
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1849309
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1849310
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1849311
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1849312
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1849313
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1849314
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1911102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1911103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1911104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1911105
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1911106
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1911202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1911203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1912102
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1912103
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1912104
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1912106
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1912107
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1912202
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1912203
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1913106
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1913107
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1913108
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1913109
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1913110
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1913111
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1913209
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1913210
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1913211
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1913212
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1913213
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1913214
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1913215
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1913216
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1923118
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1923119
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1923120
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1923121
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1923122
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1923123
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1923216
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1923217
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1923218
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1923219
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1923220
+    https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=2&am_jugycd=1923221
+    ```
+    
+    [授業アンケートシステム](https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1013102)
+    
+
+2️⃣ **抽出対象を設定する**
+
+画面上で「ここを取りたい」と指定（テキスト・画像・リンクなど）。
+
+![image.png](attachment:5000d018-e51a-4796-98fd-9a5abb00470c:image.png)
+
+3️⃣ **動作条件を設定する（必要なら）**
+
+ページ遷移・ページ送り・ログインなどのステップを設定。
+
+![image.png](attachment:6515c707-4662-4b55-a59d-84303b0c21bf:image.png)
+
+4️⃣ **データを抽出する**
+
+ローカルPCで実行。
+
+![image.png](attachment:7f255b21-61b1-4a39-9f13-5c14df74601f:image.png)
+
+5️⃣ **データを出力する**
+
+Json形式で保存（※10000行まで）
+
+---
+
+### 🎥 初心者向けおすすめ動画
+
+### 1. 【超簡単】誰でもWebスクレイピングができる便利ツールOctoparseについてわかりやすく解説
+
+- **内容**：Octoparseの基本的な使い方を、非エンジニア向けにわかりやすく解説しています。
+- **リンク**：([YouTube](https://www.youtube.com/watch?v=GpGzeSrc60U&utm_source=chatgpt.com))([YouTube](https://www.youtube.com/channel/UCS23IL_rwHhMd24J4wZJ4iQ?utm_source=chatgpt.com), [Octoparse](https://www.octoparse.jp/blog/scraping-youtube-comments-to-analyze-yuzuru-hanyus-fan-sentiment?utm_source=chatgpt.com))
+
+### 2. 【チュートリアル】一般ユーザーでも使いやすいOctoparseでデータ収集を楽々実現！
+
+- **内容**：検索結果ページからのデータ収集方法を、実際の操作画面を交えて説明しています。
+- **リンク**：([YouTube](https://www.youtube.com/watch?v=eAWQB0Eue_A&utm_source=chatgpt.com))([YouTube](https://www.youtube.com/playlist?list=PLKiGq85xyrHA0S_A85HdpDZ92_b8_2Jga&utm_source=chatgpt.com))
+
+### 3. 【チュートリアル】初心者でも簡単！Octoparseで自動検出機能を使ってデータ抽出
+
+- **内容**：Octoparseの自動検出機能を活用したデータ抽出方法を紹介しています。
+- **リンク**：([YouTube](https://www.youtube.com/watch?v=KqVd-m5TS5w&utm_source=chatgpt.com))([YouTube](https://www.youtube.com/watch?v=HNHg8T78-_g&utm_source=chatgpt.com))
+
+### 4. 【最新版Octoparse8.5.8】ガイドシリーズ
+
+- **内容**：Octoparseの最新バージョンに対応した操作ガイドのプレイリストです。
+- **リンク**：([YouTube](https://www.youtube.com/playlist?list=PLKiGq85xyrHA0S_A85HdpDZ92_b8_2Jga&utm_source=chatgpt.com))([YouTube](https://www.youtube.com/watch?v=WLitvtaDxck&utm_source=chatgpt.com))
+
+### 5. Webスクレイピング入門講座｜Octoparse Japan
+
+- **内容**：スクレイピングの基本からOctoparseの活用方法までを体系的に学べる講座です。
+- **リンク**：([YouTube](https://www.youtube.com/playlist?list=PLibG5_ZjXfstA1P2fzeaR_Yiw5IbuYZyB&utm_source=chatgpt.com))([YouTube](https://www.youtube.com/playlist?list=PLibG5_ZjXfstA1P2fzeaR_Yiw5IbuYZyB&utm_source=chatgpt.com))
+
+### 0513
+
+### 今回の目標
+
+- データを学科ごとで集める→リンクを抽出する→ダブりを消す
+- スクレイピングのデータの項目が足らないので再スクレイピングする
+
+### データ収集方法について
+
+**1. 学科ごとにシラバスを選定**
+
+- 各学科のシラバスページを対象とし、アンケートが記載されている授業を収集対象とする。
+
+※学科ごとに分類し、それぞれのシラバス一覧ページにアクセスして整理。
+
+---
+
+**2. 各授業ページのリンクを抽出**
+
+- 学科別シラバス一覧ページから、授業ごとの個別ページリンクを抽出。
+- リンクを変えて、
+
+→ 各授業に記載されている「学生による授業評価コメント」等のアンケートデータが対象。
+
+---
+
+**3. 重複の排除**
+
+抽出された授業リンクの中には、以下のような理由で重複が存在するため、重複を排除：
+
+- 同一授業が複数学科で開講されている場合
+- 同じ授業でも、ページが学期ごとに分かれており内容が重複している場合
+
+→ プログラムまによる重複除去を実施
+
+【注意】
+
+スタートエンドが必要
+
+オブジェクトが違う
+
+分岐の場合は、分岐の記号を
+
+Boxの大きさをそろえる
+
+```mermaid
+graph TD
+    A[学科ごとの分類]
+    A --> A1[情報マネジメント学科]
+    A --> A2[情報工学科]
+    A --> A3[知能機械工学科]
+
+    A1 --> B[シラバス一覧ページ]
+    A2 --> B
+    A3 --> B
+
+    B --> C[授業ページのリンク抽出]
+    C --> D[アンケート記載あり授業]
+    D --> E[重複リンクの削除]
+    E --> F[最終的な対象授業データ確定]
+
+```
+
+- 福岡工業大学　学科一覧
+    
+    ```mermaid
+    graph TD
+        A[福岡工業大学] --> B[工学部]
+        A --> C[情報工学部]
+        A --> D[社会環境学部]
+        A --> E[短期大学部]
+    
+        B --> B1[電子情報工学科]
+        B --> B2[生命環境化学科]
+        B --> B3[知能機械工学科]
+        B --> B4[電気工学科]
+    
+        C --> C1[情報工学科]
+        C --> C2[情報通信工学科]
+        C --> C3[情報システム工学科]
+        C --> C4[情報マネジメント学科]
+    
+        D --> D1[社会環境学科]
+    
+        E --> E1[情報メディア学科]
+    
+    ```
+    
+
+### 対象データ
+
+![image.png](attachment:fde32557-293f-472f-82c5-c169282bf922:image.png)
+
+- 対象授業
+ex) 1013102　Advanced English A
+- 平均評価ポイント
+ex) 3.69
+- 先生に向けてこの授業の感想や学んだこと、意見や要望を記述してください。
+ex) わかりやすい
+- 次期履修者に向けてこの授業についてのアドバイスを記述してください。
+ex )わかりやすい
+- 実際に画像
+→[https://unipa.fit.ac.jp/fit_cas/Cas303.doam_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1013102](https://unipa.fit.ac.jp/fit_cas/Cas303.do?am_syllabus=1&am_nendo=2024&am_gakki=1&am_jugycd=1013102)
+    
+    ![image.png](attachment:610a70bf-5138-41ef-b446-b74a28fc92f4:image.png)
+    
+    ![image.png](attachment:7cca9e6a-eda3-4341-8598-b281a6a8f9b4:image.png)
+    
+    ![image.png](attachment:f3fa978c-3914-4e32-84c7-9f9f23e7d9f5:image.png)
+    
+
+### データの保存方法
+
+| **フォーマット** | **特徴と用途** |
+| --- | --- |
+| **CSV** | 汎用性が高く、Excelや多くの分析ツールで利用可能。 |
+| **Excel (.xlsx)** | 表形式でのデータ確認や編集に便利。 |
+| **JSON** | 階層構造のデータを扱う際に適しており、API連携やプログラム処理に活用される。 |
+| **HTML** | Webページとしてデータを保存し、ブラウザでの閲覧が可能。 |
+| **TXT** | シンプルなテキスト形式での保存。 |
+| **XML** | データの構造を明確に定義でき、他のシステムとのデータ交換に利用される。 |
+
+**最適な保存形式：CSV**
+
+- **シンプルなテーブル形式**なので、CSVとの相性が非常に良い
+- 日本語テキストもUTF-8で保存すれば問題なし
+- 多くの自然言語処理ツール（例：TextBlob、transformers、Janomeなど）と連携しやすい
+
+**他形式との比較**
+
+| フォーマット | 向き不向き | コメント |
+| --- | --- | --- |
+| **CSV** | ◎ | テキスト・数値が混在する構造に最適。感情分析モデルとの連携もしやすい |
+| **JSON** | ○ | ネストしたデータが必要な場合は良いが、この表のような形式には不要 |
+| **Excel (.xlsx)** | △ | 手動での編集に便利だが、Pythonなどで読み込むと処理がやや遅くなる場合あり |
+| **TXT** | × | カラム構造を持たないため、複数列データには不向き |
+
+### アウトプット
+
+今後の展望：
+
+日本語対応に感情分析→Hugging Face
+
+| 機能 | 内容 |
+| --- | --- |
+| モデル共有 | 世界中の研究者・企業が作ったAIモデルをアップ＆ダウンロードできる（例：BERT, GPTなど） |
+| Transformersライブラリ | 高品質な自然言語処理（翻訳・要約・感情分析など）をPythonで簡単に使える |
+| Datasets | 公開データセットを検索＆そのまま使える |
+| Spaces | ノーコードでAIデモを公開・共有できる（GradioやStreamlitで実行） |
+| トレーニング | 独自データで学習・微調整（ファインチューニング）も可能 |
+
+[授業アンケートシステム1-1.csv](attachment:5642b8c5-bc78-4a78-b635-4b842b8af6bc:授業アンケートシステム1-1.csv)
+
+### 0520
+
+### 今回の目標
+
+いったんまずスクレイピングを全部やる
+→2025年までしました
+
+### 現状
+
+全授業を抽出できていない
+
+### Easy Scraper
+
+これをmyfitにかけて抽出します
+
+[簡単WEBスクレイピング！Easy Scraperの魅力と活用法｜shintaro](https://note.com/shintarou02/n/n7e23a0def846)
+
+### データについて
+
+**学科**
+
+- 情報工学部
+- 工学部
+- 社会学部
+
+**分け方**
+
+- 前期
+- 後期
+- 
+
+**年代**
+
+- 2019年
+- 2020
+- 2021
+- 2022
+- 2023
+- 2024
+
+※２０２５年度のデータをとったら２０２４年度開講のアンケート結果が取れるよ
+
+---
+
+**学科**
+
+- 電子情報工学科
+- 生命環境化学科
+- 知能機械工学科
+- 電気工学科
+
+- 情報工学科
+- 情報通信工学科
+- 情報システム工学科
+- 情報マネジメント学科
+
+- 社会環境学科
+- ~~情報メディア学科~~
+
+---
+
+### データ取得するための設定
+
+![image.png](attachment:29ca8094-b577-4871-925d-90dabba317ca:image.png)
+
+**■ 条件の整理**
+
+- **入学年度**と**開講年度**は「同じ年」として設定する。
+- **対象年度**は **2019年〜2024年**（6年間）
+- **学科ごとに取得**（＝10学科分）
+- 各学科ごとに、上記6年間の情報を取得
+- 各学科 × 各年度で1回検索
+- つまり：
+    
+    `10学科 × 6年分 = 60回の検索が必要`
+    
+- [x]  2025年のシラバス（2024年開講）
+- [ ]  2024年のシラバス（2023年開講）
+- [ ]  2023年のシラバス（2022年開講）
+- [ ]  2022年のシラバス（2021年開講）
+- [ ]  2021年のシラバス（2020年開講）
+- [ ]  2020年のシラバス（2019年開講）
+
+### 今回した作業
+
+1. 2025年度のリンク生成に必要なデータを集める
+2. 扱いやすいように操作する（メタデータを追加）→開講年度，識別学科
+3. それぞれのデータを１つにする
+4. 学科の講義だけを集めるために前処理（教養科目などをなくす）
+5. リンク作成
+6. スクレイピング
+7. データ成形（python）
+8. 分析
+
+### 結果
+
+[lecture_summary_社会環境学.csv](attachment:5ae705d9-1e92-4831-890d-d87d173f2a61:lecture_summary_社会環境学.csv)
+
+[lecture_summary_情報システム.csv](attachment:0889350d-cbc4-4038-b7e9-33a5bdd00eb3:lecture_summary_情報システム.csv)
+
+[lecture_summary_情報マネジメント.csv](attachment:e86e9dfc-6c2a-401e-9095-a9f40787e37b:lecture_summary_情報マネジメント.csv)
+
+[lecture_summary_情報工学.csv](attachment:710c74b4-b9a4-4507-82fc-6d5b270b4ec3:lecture_summary_情報工学.csv)
+
+[lecture_summary_情報通信.csv](attachment:f3a2eab0-0eb4-476b-84dc-ca95da53e624:lecture_summary_情報通信.csv)
+
+[lecture_summary_生命環境.csv](attachment:3e6a68cc-b2fd-418d-959f-8b8705d306e0:lecture_summary_生命環境.csv)
+
+[lecture_summary_知能機械.csv](attachment:44ff4132-38ce-426d-aaf8-fba150ad439d:lecture_summary_知能機械.csv)
+
+[lecture_summary_電気工学.csv](attachment:c9f6a1c4-2ea1-48d5-8e48-476aa5f07bc5:lecture_summary_電気工学.csv)
+
+### 発見
+
+授業番号の規則性を発見できそう→前から二番目は傾向がある
+
+Ex)情報マネ→２番目が必ず「8」
+
+---
+
+### 分析結果(Genspark)
+
+データ分析の結果、8つの学部における講義評価データから以下のような傾向が見られました。
+
+### 平均評価スコアの比較
+
+各学部の平均評価スコアを比較すると：
+
+1. **最も高い評価**：
+    - 情報工学部（3.55）と社会環境学部（3.55）が最も高い平均評価を獲得しています
+    - これらの学部は学生からの満足度が最も高いことを示しています
+2. **最も低い評価**：
+    - 情報マネジメント部（3.42）が相対的に最も低い評価となっています
+    - ただし、全体的に見れば3.4以上であり、大きな問題はないと考えられます
+3. **評価の安定性**：
+    - 社会環境学部は標準偏差が最も小さく（0.15）、評価の一貫性が最も高いです
+    - 逆に知能機械学部は標準偏差が最も大きく（0.26）、講義による評価のばらつきが大きいことを示しています
+
+### 回答率の傾向
+
+回答率は学生の参加度や関心の高さを示す重要な指標です：
+
+1. **最も高い回答率**：
+    - 社会環境学部（55.8%）と情報マネジメント部（54.3%）が最も高い回答率を示しています
+    - これらの学部では学生の授業評価への参加意欲が高いことがわかります
+2. **最も低い回答率**：
+    - 情報工学部（36.0%）の回答率が最も低くなっています
+    - 興味深いことに、情報工学部は平均評価が最も高いのに対し、回答率は最も低いという対照的な結果となっています
+
+### 履修者数と回答人数
+
+1. **最大の履修規模**：
+    - 社会環境学部は平均履修者数が最も多く（93.6人）、回答人数も最多（55.6人）です
+    - 大規模な講義が多い可能性や、学部の規模自体が大きい可能性が考えられます
+2. **最小の履修規模**：
+    - 情報システム学部は回答人数が最も少なく（19.4人）、比較的小規模なクラスが多いことが推測されます
+
+### 評価と回答率の相関関係
+
+1. **正の相関**：
+    - 生命環境学部（0.16）は最も強い正の相関を示しており、回答率が高い講義ほど評価も高い傾向があります
+2. **負の相関**：
+    - 情報マネジメント部（-0.13）は最も強い負の相関を示しており、回答率が高い講義ほど評価が低い傾向が見られます
+    - これは批判的な意見を持つ学生が積極的に回答する傾向がある可能性を示唆しています
+
+### 総合考察
+
+1. **全体的な傾向**：
+    - 全学部で平均評価は3.4以上であり、全体的に良好な評価を得ています
+    - 回答率は学部によって大きく異なり（36%～56%）、学部文化や講義スタイルの違いを反映している可能性があります
+2. **注目すべき特徴**：
+    - 情報工学部：最高評価だが最低回答率という特徴的なパターン
+    - 社会環境学部：高評価・高回答率・大規模クラスという三拍子が揃った学部
+    - 情報マネジメント部：評価と回答率の負の相関が最も強く、調査方法や講義改善の余地が考えられます
+3. **講義数の違い**：
+    - 情報工学部が最多の講義数（120）を提供しており、カリキュラムの多様性が高い可能性があります
+    - 情報マネジメント部は最少の講義数（32）であり、より専門に特化した可能性があります
+
+---
+
+### 0526
+
+[lecture_summary_情報システム.csv](attachment:0889350d-cbc4-4038-b7e9-33a5bdd00eb3:lecture_summary_情報システム.csv)
+
+[lecture_summary_社会環境学.csv](attachment:5ae705d9-1e92-4831-890d-d87d173f2a61:lecture_summary_社会環境学.csv)
+
+[lecture_summary_情報マネジメント.csv](attachment:e86e9dfc-6c2a-401e-9095-a9f40787e37b:lecture_summary_情報マネジメント.csv)
+
+[lecture_summary_情報工学.csv](attachment:710c74b4-b9a4-4507-82fc-6d5b270b4ec3:lecture_summary_情報工学.csv)
+
+[lecture_summary_情報通信.csv](attachment:f3a2eab0-0eb4-476b-84dc-ca95da53e624:lecture_summary_情報通信.csv)
+
+[lecture_summary_生命環境.csv](attachment:3e6a68cc-b2fd-418d-959f-8b8705d306e0:lecture_summary_生命環境.csv)
+
+[lecture_summary_知能機械.csv](attachment:44ff4132-38ce-426d-aaf8-fba150ad439d:lecture_summary_知能機械.csv)
+
+[lecture_summary_電気工学.csv](attachment:c9f6a1c4-2ea1-48d5-8e48-476aa5f07bc5:lecture_summary_電気工学.csv)
+
+### 0527　研究室配属
+
+八月末まで
+
+継続するか、０からやるか
+
+継続なら８月末まではあのまんま
+
+いなくなったら、一時的に使えなくなります、もうなくなります
+
+名目上、佐藤先生に
+
+月一orオンラインで指導してもらえる
+
+全然ちがうテーマでいいなら、ご希望の研究室
+
+継続する場合は、最終判断は佐藤先生
+
+高橋先生はなにも責任があるわけではないので、学校としては完全に放任になっている
+
+最終的な卒論は学校側が判断するので、１１月か１２月に、状況を伝えて、
+
+### 0528　形態素解析（環境構築）
+
+### 研究データ　raw
+
+[情報マネジメント.csv](attachment:eedfc887-6b7c-4409-a698-25e658719b8a:情報マネジメント.csv)
+
+[社会環境学.csv](attachment:26d335b2-cc87-4291-a139-f3c8f684cd43:社会環境学.csv)
+
+[情報システム.csv](attachment:fd2cc89a-501b-4529-93e2-32a27d2180eb:情報システム.csv)
+
+[情報工学.csv](attachment:75e3b747-4891-4b65-9749-ec6b0ddeabd6:情報工学.csv)
+
+[情報通信.csv](attachment:b3a80171-e9c1-40c1-b90f-4c2df4fd7cca:情報通信.csv)
+
+[生命環境.csv](attachment:395379d2-5f87-4c98-8df9-19daae43c91b:生命環境.csv)
+
+[知能機械.csv](attachment:1f644252-397e-4b10-89d2-d2a78e6ccc73:知能機械.csv)
+
+[電気工学.csv](attachment:131694c6-7111-4674-8fb1-055ba7d744d5:電気工学.csv)
+
+【問題点】
+
+正解がない→スコアを出す
+
+GPUがいるかも
+
+【懸念点】
+
+データ量
+
+関連性がないかも
+
+---
+
+- 形態素解析概要
+    
+    **MeCabによる日本語教育データの形態素解析と応用・感情分析への有効性**
+    
+    - **MeCabは日本語形態素解析の代表的なツール**であり、単語分割や品詞タグ付けを高精度かつ高速に実現する。
+    - **教育データでの強み**は、単語区切りがない日本語の特徴や、学生が使う非標準的な表現（ノイズの多いテキスト）にも対応できる点。
+    - **主な応用例**として、
+        - 語彙リスト作成（頻出語の抽出による語彙学習支援）
+        - 学生コメントやエッセイの**感情分析**
+        - 教材やキャラクターの話し方分析（話し言葉の特徴抽出）
+            
+            がある。
+            
+    - **感情分析への有効性**としては、
+        - 単語分割（形態素分割）で感情表現を正確に捉える
+        - 品詞タグにより感情の強弱や文脈が分かる
+        - ノイズを含む学生の自由記述にも対応しやすい
+            
+            などの理由で、MeCabは日本語教育データの分析に非常に有用。
+            
+    - **結論**
+        
+        MeCabは教育分野の日本語テキスト処理に広く使われ、特に感情分析や語彙学習支援で高い効果を発揮している。高い適応性と効率性により、多様な教育現場で活用可能。
+        
+    
+    ---
+    
+    > MeCabは、日本語教育データにおいて語彙抽出や感情分析、話し方の分析など多様な用途で利用されており、特に感情分析では高精度な単語分割・品詞タグ付けが効果を発揮する。ノイズの多い学生記述にも強く、教育現場の日本語テキスト分析に最適なツールである。
+    > 
+- MeCab概要（Deep reserch）
+    
+    <aside>
+    
+    了解。教育現場の日本語自由記述アンケートに対して、MeCabなどの形態素解析を活用し、感情分析や評価傾向のスコア化につなげるための技術的な手法・ワークフローを調査します。特に短文・曖昧表現の取り扱いや、Python・Rそれぞれのメリット・サンプルコードを含め、プログラミング初学者にも実践しやすい形で解説できるようにします。
+    
+    結果がまとまり次第、お知らせします。
+    
+    # 大学授業アンケート自由記述の感情分析：ワークフローと技術手法
+    
+    ## 先行研究と分析事例
+    
+    大学の授業評価アンケートの自由記述回答には、学生の率直な意見が含まれ有益ですが、そのテキスト分析手法は確立されておらず大きな人的コストを要することが指摘されています。こうした自由記述の分析に対し、近年いくつかの研究事例が報告されています。例えば、**辞書ベースの手法**では学生のコメント中の単語から極性（ポジ/ネガ）を判定し、講義への満足・不満傾向を分析する試みがあります。一方、**機械学習・深層学習**を用いた手法では、コメントに対して教員が付与した評価点やラベルを学習データとしてモデルを訓練し、テキストから評価スコアを自動推定する研究もあります（例：LSTMモデルによる6段階評価分類）。また、単語頻度やトピックに着目して自由記述をクラスタリングし、学生の満足・不満の共通パターンを抽出する試みもみられます。これら先行事例から、**感情分析（センチメント分析）や単語頻度解析**によって自由記述から評価傾向を把握することが有効だと示唆されています。
+    
+    ## 分析ワークフロー概要
+    
+    自由記述回答の分析は、以下のステップで進めるとわかりやすいです：
+    
+    1. **データ収集と前処理** – アンケートの自由記述回答をテキストデータとして収集します。テキストの文字コード統一、不要な改行・記号の削除、表記ゆれの正規化（例：「まぁまぁ」→「まあまあ」）などを行います。必要に応じて「??」「(笑)」といった特殊表現やHTMLタグの除去も実施します。
+    2. **形態素解析による単語分割** – MeCab等の日本語形態素解析エンジンを用いてテキストを単語に分割し（分かち書き）、各単語の**基本形**（原形）と品詞情報を取得します。形態素解析によって「分かりやすかった」→「分かる」「やすい」「た」のように分解され、評価辞書と照合しやすくなります。
+    3. **感情スコアリング（評価傾向の抽出）** – 形態素解析で得た単語リストをもとに、あらかじめ用意した**感情極性辞書**や学習済みモデルを使って各コメントのポジ/ネガ評価を算出します。辞書ベースの場合は各単語にスコアを割り当てて集計し、機械学習モデルの場合はテキスト全体を入力して予測スコア（またはラベル）を得ます。
+    4. **結果の集計・可視化** – 抽出した感情スコアや評価ラベルを集計し、講義ごとの平均スコア算出、ポジティブ/ネガティブ割合の算出、頻出キーワードとの関係分析などを行います。結果はヒストグラムや棒グラフ、ワードクラウド等で可視化し、教育改善に活かせる洞察を得ます。
+    
+    以下では、このワークフローに沿って各段階の具体的手法とポイントを解説します。
+    
+    ## 前処理：テキスト正規化と曖昧表現の対処
+    
+    - *テキスト正規化（Normalization）**は分析精度を高める重要なステップです。例えば全角・半角の統一、カタカナ/ひらがなの表記ゆれ統一、誤字の修正などを行います。具体的には「まぁまぁ」「マアマア」といった表記を「まあまあ」に統一したり、語尾の長音記号「ー」を適切に処理します。「ワイヤレス」を「ワイヤレス（標準表記）」に直すなど、一般的な辞書に載っていない表記ゆれはあらかじめ正規化します。Pythonでは`neologdn`ライブラリを使うと典型的な表記ゆれの正規化が可能です。また、アンケート特有の回答として「特になし」「なし」といった内容のない回答が含まれる場合もありますが、これらは分析対象から除外するか、中立扱いする処理を入れておきます。
+    
+    **曖昧表現への対処**も前処理段階で重要です。学生のコメントには「まあまあ良かった」「普通だと思う」のように評価が曖昧な表現が頻出します。こうした表現はポジティブともネガティブとも取れますが、一般には**ニュートラル（中立）またはわずかにポジティブ**なニュアンスと解釈できます。辞書ベース手法では、必要に応じて「まあまあ」「普通」「そこそこ」「まずまず」といった単語を独自に辞書登録し、中立（スコア0）または軽度のポジティブ（+0.2程度）のスコアを与える運用も考えられます。深層学習モデルを用いる場合、これら曖昧表現の解釈は学習データに依存しますが、十分な文脈がない短文ではモデルも判断を迷う可能性があります。対策として、曖昧表現を含むコメントには別途フラグを立てて分析者が注意して解釈する、あるいは**「中立」カテゴリー**を設けてポジティブ/ネガティブと区別する方法があります。教育分野のアンケートでは極端に罵倒する表現は少なく、婉曲な否定（「もう少し～ならありがたい」等）のように**丁寧なポジティブ表現の中に否定の意図が隠れている**こともあります。そのため、「ない」「ぬ」「もう少し〇〇なら～」など**否定表現や婉曲表現の検出**も重要です。例えば「分かりやすくない」は表面的には「分かりやすい（ポジ）」と「ない（ネガ）」に分解されますが、そのままではスコアが相殺され誤判定になります。この問題を避けるために、後述する辞書ベース手法では否定表現を検知して前の単語の極性を反転させる処理を組み込みます。Osetiなど一部のライブラリでは「あまり～ない」「～ではない」まで含めて自動で極性反転処理が施されます。
+    
+    ## 形態素解析（MeCab）による単語分割
+    
+    日本語テキストから単語を抽出するには**形態素解析**が必要です。MeCabは広く使われるオープンソースの日本語形態素解析器で、高い精度で文章を単語に区切り品詞を判定してくれます。Pythonでは`mecab-python3`をインストールすることでMeCabを使用できます（事前にMeCab本体と辞書のインストールが必要）。Rでは`RMeCab`パッケージを利用することでMeCabをRから呼び出せます。以下にPythonとRでの形態素解析の簡単な例を示します。
+    
+    ```python
+    # Pythonでの形態素解析例
+    !pip install mecab-python3
+    import MeCab
+    text = "授業はまあまあ面白かったと思います。"
+    # MeCabで形態素解析（分かち書き出力）
+    tagger = MeCab.Tagger("-Owakati")
+    words = tagger.parse(text).strip().split()
+    print(words)  # ['授業', 'は', 'まあまあ', '面白かっ', 'た', 'と', '思い', 'ます', '。']
+    
+    # MeCabで形態素解析（詳細情報出力）
+    tagger2 = MeCab.Tagger("-Ochasen")
+    print(tagger2.parse(text))
+    # 出力例: 授業\t名詞,一般,*,*,*,*,授業,ジュギョウ,ジュギョー
+    #         は\t助詞,...
+    #         まあまあ\t副詞,...
+    #         面白かった\t形容詞,自立,*,*,形容詞語幹:面白い,活用形:た,面白かった,オモシロカッタ,オモシロカッタ
+    #         ...
+    
+    ```
+    
+    ```r
+    # Rでの形態素解析例（RMeCab使用）
+    install.packages("RMeCab")  # 要MeCabの事前インストール
+    library(RMeCab)
+    text <- "授業はまあまあ面白かったと思います。"
+    res <- RMeCabC(text)       # 文字列を形態素解析してリストで取得
+    print(unlist(res))
+    # 出力例:
+    #        名詞     助詞    副詞    形容詞      助動詞   動詞    助動詞 記号
+    #      "授業"     "は"  "まあまあ"   "面白い"      "た"  "思う"    "ます"  "。"
+    
+    ```
+    
+    上記の例では、**「まあまあ面白かった」というフレーズが適切に単語「まあまあ」（副詞）＋「面白い」（形容詞の基本形）＋「た」（助動詞）に分割されていることが確認できます。形容詞「面白かった」は基本形「面白い」として取得されており、後続の助動詞「ない」等があればそれも別単語になります。形態素解析の結果から、分析に不要な品詞の除外も検討します。一般に感情分析では、感情を表す形容詞・形容動詞、評価の動詞（「助かる」「失望した」等）、名詞（「退屈」「魅力」等）に注目します。一方、助詞や助動詞、接続詞などは評価極性を持たないため分析では無視することが多いです。ただし日本語では「最悪」「最低」「サイコー」のように名詞形でも強い感情を持つ単語もあるため、辞書に載っている限り品詞に関わらず拾います。必要に応じて、形態素解析結果から特定品詞のみを抽出**するフィルタリングを行います（例えば`if token.part_of_speech.startswith("名詞") or token.part_of_speech.startswith("形容詞"):`のような条件で抽出）。
+    
+    **辞書の選択**も解析精度に影響します。MeCab標準のIPA辞書で十分ですが、固有名詞や新語に強い**NEologd辞書**を使うとスラングや固有名も形態素解析で認識しやすくなります。教育アンケートでは専門用語は少ないと思われますが、例えば「オンライン授業」「Moodle」「リアペ（リアクションペーパー）」といった最近の教育用語が登場する場合、NEologdの方が認識精度が高い可能性があります。形態素解析は分析の土台となるため、辞書のチューニングやユーザー辞書の追加（特定の略語や講義名などを登録）も検討するとよいでしょう。
+    
+    ## 辞書ベースの感情スコア抽出
+    
+    形態素解析で得た単語群から、**辞書ベース**でコメントの感情傾向を数値化する方法は、実装が比較的容易で初学者にも再現しやすい手法です。これは**「感情極性辞書」**と呼ばれる、単語ごとのポジ/ネガ極性ラベルやスコアを収録した辞書を利用します。代表的なものに、東北大学 乾・鈴木研究室が公開する**「日本語評価極性辞書」**や、東京工業大学の高村研による**「単語感情極性対応表」**があります。これらの辞書には数千規模の単語が収録され、各単語に+1（ポジティブ）から-1（ネガティブ）までのスコアまたはラベルが付与されています（例えば「良い: 0.999995」「悪い: -1」「優れる: +1」「死ぬ: -0.999999」）。辞書を用いることで、ラベル付けされた学習データが無くてもテキストの評価傾向を推定できます。
+    
+    **スコアリング手法**としては、基本的に「コメント中の**感情語**を辞書から探し、その極性値を合計・平均してコメント全体のスコアとする」形になります。具体的には、コメントの形態素解析結果の各単語について辞書を参照し、ポジティブ語なら+1、ネガティブ語なら-1の値を足し合わせます。そして**「極性値の総和 ÷ ヒットした単語数」**で正規化した値をそのコメントのスコアとします。例えばOsetiライブラリのルールでは、「遅刻したけど楽しかったし嬉しかった。」という文から**「遅刻」**(-1), 「楽しかっ(楽しい)」(+1), 「嬉しかっ(嬉しい)」(+1)を検出し、極性値総和は1、ヒット数3なのでスコアは`1/3 = 0.3333`となります。スコアが+に近いほどポジティブ、-に近いほどネガティブ、0付近は中立を意味します。なお、前述の通り「ない」「ぬ」など否定表現を検知した場合は**直前の極性値を反転**させる処理も組み込まれており、例えば「面白くない」は「面白い」(+1)と「ない」にヒットした後に極性反転され**-1**となります。このように辞書ベースでも工夫することで否定表現に対応可能です。
+    
+    - *Pythonでの実装例（辞書ベース）**として、先述のOsetiライブラリを利用する方法があります。Osetiは内部でMeCabを使い日本語評価極性辞書に基づきスコアを計算してくれる便利なライブラリです。以下はOsetiを用いたサンプルコードです。
+    
+    ```python
+    !pip install oseti mecab-python3 neologdn
+    import neologdn
+    import oseti
+    analyzer = oseti.Analyzer()
+    
+    text = "遅刻したけど楽しかったし嬉しかった。"
+    text_norm = neologdn.normalize(text)        # テキスト正規化（全角記号統一など）
+    print(text_norm)  # "遅刻したけど楽しかったし嬉しかった。"
+    
+    score_list = analyzer.analyze(text_norm)    # 文ごとのスコア算出
+    print(score_list)  # 出力例: [0.3333333333333333]
+    detail = analyzer.analyze_detail(text_norm) # 詳細な内訳
+    print(detail)
+    # 出力例: [{'positive': [], 'negative': ['遅刻'], 'score': 0.3333333333333333}]
+    
+    ```
+    
+    上記コードでは、`analyze`メソッドで文章内の各文に対するスコア（リスト）が得られます。一文しかない場合はリストに1つ値が入っています。また`analyze_detail`を使うと、ポジ/ネガと判定された単語のリストも取得できます。例えばこの結果では「遅刻」がnegativeとしてカウントされ、ポジティブ単語はリストアップされていません（おそらく「楽しかった」「嬉しかった」はポジティブだが、両者で+2、遅刻-1で合計+1となり正規化0.333…になっています）。
+    
+    Oseti以外にも、自前で辞書を用いてスコアリングすることも可能です。**Janome**（純粋Pythonで動く形態素解析ライブラリ）と「単語感情極性対応表（pn_ja.dic）」を使った例が以下です。
+    
+    ```python
+    from janome.tokenizer import Tokenizer
+    
+    # 感情極性辞書を読み込んで辞書型に格納
+    sentiment_dic = {}
+    with open('pn_ja.dic', 'r', encoding='utf-8') as f:
+        for line in f:
+            line_components = line.strip().split(':')
+            if len(line_components) >= 4:
+                word = line_components[0]
+                score = float(line_components[3])  # -1〜1のスコア
+                sentiment_dic[word] = score
+    
+    # テキストを単語に分解し、スコア計算する関数
+    def sentiment_score(text):
+        t = Tokenizer()
+        tokens = t.tokenize(text)
+        total = 0.0
+        count = 0
+        for token in tokens:
+            base = token.base_form       # 基本形
+            if base in sentiment_dic:
+                total += sentiment_dic[base]
+                count += 1
+        if count == 0:
+            return 0.0
+        else:
+            return round(total / count, 3)
+    
+    print(sentiment_score("ご飯が美味しい"))      # 正の例: 出力例 0.991
+    print(sentiment_score("単位を落として最悪"))  # 負の例: 出力例 -0.999
+    print(sentiment_score("まあまあ楽しい"))      # 曖昧例: 出力例 0.0 (中立と判断)
+    
+    ```
+    
+    このように、形態素解析で取り出した**基本形**に対して辞書引きを行い、ヒットした場合にスコアを合計・平均しています。上の例では「美味しい」は約+0.99、「最悪」は-0.999というようにスコア化され、コメント全体の平均値が算出されています。「まあまあ楽しい」のようなケースでは「まあまあ」が辞書に未登録で「楽しい」(+1.0)のみヒットするとスコア+1.0になりますが、例では敢えて「まあまあ」をスコア0として辞書登録したため中立(0.0)に近い結果に調整しています。このようにドメインに応じて**辞書を拡張・調整**することで、曖昧表現の扱いも改善できます。
+    
+    - *Rでの実装例（辞書ベース）**は、基本的に上述のPythonの処理をRに置き換えた形になります。RMeCabで形態素解析した結果（例えば`RMeCabC`で出力された単語ベクトル）を、データフレーム化して評価辞書データと**結合（join）**するアプローチが考えられます。高村教授の「単語感情極性対応表」は`pn_ja.dic`として配布されており、Rでもこれを読み込んで利用可能です。例えば、辞書を読み込みデータフレーム`dic`に格納し、形態素解析結果のベクトル`words`をデータフレームにして`inner_join`でマッチさせ、ヒットしたスコアの平均を計算するといった手順です。擬似コードですが以下のような流れになります。
+    
+    ```r
+    # 辞書データの読み込み
+    dic <- read.delim("pn_ja.dic", header=FALSE, sep=":")    # :区切りテキストを読み込み
+    colnames(dic) <- c("word","yomi","pos","score")         # 適宜列名を設定
+    dic$score <- as.numeric(as.character(dic$score))        # score列を数値に
+    
+    # コメントを形態素解析し、基本形を取得
+    res <- RMeCabC(text)            # 形態素解析結果リスト
+    words <- unlist(res)            # ベクトル化
+    words_df <- data.frame(word=words, stringsAsFactors=FALSE)
+    
+    # 感情極性辞書と結合してスコア集計
+    merge_df <- merge(words_df, dic, by="word")
+    score <- 0
+    if(nrow(merge_df) > 0){
+      score <- mean(merge_df$score) # ヒットした単語のscore平均
+    }
+    print(score)
+    
+    ```
+    
+    Rの場合も処理の考え方はPythonと同じですが、注意点として**文字エンコーディング**に留意してください（辞書ファイルがUTF-8かSHIFT-JISかなど）。また、RMeCabは解析結果で単語の基本形を返してくれますが、活用語の基本形取得には工夫がいる場合もあります。上記コードでは簡便のため表層形そのまま`word`として扱っていますが、「面白かった」が「面白い」と「た」に分かれたとき、「面白い」だけを拾うようにするなどの配慮が必要です。実際の実装では品詞フィルタリングや否定表現の処理も加えて精度向上を図ると良いでしょう。
+    
+    **辞書ベース手法のメリット・デメリット**: 辞書を使った方法は実装が分かりやすく、なぜそのスコアになるかの説明が容易（単語ごとの寄与が明確）という利点があります。また学習データが不要なので、新たなアンケートでもすぐ適用できます。しかしデメリットとして、辞書の網羅性に限界があり新出語やスラングに弱い、文脈を考慮しづらい（否定表現や皮肉に対応しにくい）といった点があります。たとえば先ほどの例で「そんなに悪くない」は「悪い」と「ない」で相殺され0点になりますが、本来はややポジティブな意味です。このような場合、辞書ベースでは規則を追加しないと適切に扱えません。また、曖昧表現の扱いも辞書に依存するため、ニュアンスの微妙な差異（「最高！」と「まあ良い」の違いなど）をスコア化しづらいです。総じて、**辞書ベースは手軽だが精度向上には専門家のチューニングが必要**な場合があります。そのため「より高い性能を求めるなら、Osetiなど既存OSSや外部のAPIを使った方が良い」という意見もあります。
+    
+    ## 機械学習・深層学習による感情分類アプローチ
+    
+    辞書ベースに対し、十分なデータがある場合は**機械学習**や**深層学習**によるアプローチが強力です。教育アンケート特有の言い回しや文脈も学習によって捉えられる可能性があります。機械学習アプローチでは、まず自由記述コメントに対して**ラベル付け**が必要です。例えば「ポジティブ」「ネガティブ」「ニュートラル」の3分類ラベルや、5段階評価のスコアなどを教師データとして用意します。これらは既存のアンケート結果（例えば数値評価がついている場合）を利用したり、人手でサンプルにラベル付与することで準備します。ラベル付きデータが用意できれば、古典的な機械学習（SVMやロジスティック回帰など）でもBag-of-WordsやTF-IDF特徴量である程度の精度で感情分類器を学習できます。
+    
+    特に近年は日本語向けの**事前学習モデル**（BERTなど）を微調整することで高精度な感情分析が可能です。例えば東北大が公開している日本語版BERT (cl-tohoku/bert-base-japanese)や、SNS投稿に基づき感情分析用にFine-tuneされたモデル（楽天レビュー20万件で学習したモデルなど）がHugging Faceで公開されています。こうしたモデルを**ファインチューニング**するにはPythonのTransformersライブラリが便利で、わずかなコードで自前データへの適用が可能です。以下は擬似コードですが、HuggingFaceのモデルを使う例です。
+    
+    ```python
+    from transformers import pipeline
+    
+    # 例: マルチリンガルモデルを使用した感情分類パイプライン
+    classifier = pipeline("sentiment-analysis",
+                          model="nlptown/bert-base-multilingual-uncased-sentiment")
+    result = classifier("この授業はとても分かりやすいと思いました。")
+    print(result)
+    # 出力例: [{'label': '5 stars', 'score': 0.843}]  （5段階中5に相当するポジティブと分類）
+    
+    ```
+    
+    上記ではAmazonレビューで学習された多言語モデルを流用していますが、教育分野の文脈とは異なるため、このままでは最適ではありません。やはり理想的には**ドメイン適応**したモデルを用意することです。例えば先行研究では、岡山理科大の研究で約1600件の講義コメントに教員評価（6段階）のラベルを付与し、LSTMモデルでコメントテキストからその評価を推定する学習を行っています。その結果、学習したモデルは未見のコメントに対してそれなりの精度で評価ランクを予測できたと報告されています（教師あり学習の有効性を示す例です）。BERTを使う場合も、数百～数千件程度のラベル付きコメントがあればファインチューニングにより高精度な分類が期待できます。また、最近公開された日本語SNSの感情コーパス（WRIME: SNS投稿に人手で主観的感情強度ラベルを付与したデータセット）をうまく活用し、まずSNSデータでファインチューニング→その後アンケートデータで再度ファインチューニング（**逐次学習**）することで、小規模データでもロバストなモデルを作ることが可能です。
+    
+    **深層学習アプローチのメリット・デメリット**: 文脈や複雑な表現の解釈に優れる点が最大の利点です。否定表現のスコープや婉曲表現、「〜ですが…」のような文全体のニュアンスもモデルが学習して判断してくれる可能性があります。また、新しい俗語やドメイン特有の用語も、分散表現によりある程度類推して扱えます。しかし、デメリットとしては**学習に必要なコーパス**の用意がハードルになります。ラベル付けには時間とコストがかかり、ラベルの主観性ゆえにブレも生じます。またモデルはブラックボックスになりがちで、なぜその判定になったか説明しにくいことも課題です。計算資源も必要で、モデルの実行に時間がかかる場合もあります。とはいえ近年は教師なしデータからの事前学習モデルが充実しているため、実務上は**まず辞書ベースでざっくり分析→余力があれば学習ベースで精度向上**という使い分けが考えられます。小規模なアンケート分析であれば辞書ベースで十分な場合も多いですが、大規模データや高精度が求められる場面では深層学習の適用も検討すると良いでしょう。
+    
+    ## PythonとRによる実装の比較
+    
+    初心者が取り組む際の**PythonとRの選択**について、それぞれメリット・デメリットがあります。
+    
+    - **Pythonのメリット:** NLP向けのライブラリが豊富で、特に日本語処理でもMeCabやJanome、SudachiPy、GiNZA等さまざまなツールが整備されています。感情分析用の高レベルライブラリ（例えば前述のOseti）や、Hugging Face Transformersのように事前学習モデルを手軽に使えるツールも充実しています。Web記事やサンプルコードも多数公開されており、情報が得やすいです。また、深層学習フレームワーク（TensorFlowやPyTorch）を使いたい場合もPython一択でしょう。加えて、PandasやNumPyで前処理・集計がしやすく、MatplotlibやSeabornで可視化もできるなど、一連の分析をPythonだけで完結できます。
+    - **Pythonのデメリット:** 日本語環境のセットアップに少し手間取る場合があります。Windows環境でMeCabを動かす際のインストールや辞書のエンコーディング問題など、初心者にはつまづくポイントがあるかもしれません。しかし最近はAnaconda環境やGoogle Colabを使えば比較的スムーズに導入できます。またコードの文法に慣れていないとライブラリの組み合わせに苦労するかもしれませんが、サンプルコードを参考に写経しつつ学ぶのが近道です。
+    - **Rのメリット:** データ集計や統計解析に慣れ親しんでいる人にはRの方が取り組みやすい場合もあります。`tidyverse`によるパイプライン処理や、`ggplot2`によるグラフ描画は強力で、アンケート結果の可視化・統計検定などと組み合わせて包括的な分析レポートを作成しやすいです。テキストマイニングの分野でも`RMeCab`や`udpipe`、`quanteda`、`tidytext`などのパッケージがあり、特に**tidytext**はデータフレーム処理と組み合わせてテキストを扱えるので、形態素解析結果をtibbleにして感情辞書とjoinし集計…といった一連の処理をパイプでつなぐことができます。日本語対応には工夫が要りますが、最近では`tidytext`でもカスタムトークナイザにMeCabを指定可能になりつつあります。Rは分析結果をMarkdownレポート（R Markdown）として出力するのも容易で、再現可能なレポート作成という点では優れています。
+    - **Rのデメリット:** 日本語テキストの前処理においてはPythonに比べ情報が少なく、実装例を探すのに時間がかかることがあります。`RMeCab`は便利ですがMeCab本体のインストールが前提で、環境構築のハードルがあります。また深層学習モデルの利用となると、Rから直接行うよりPythonのライブラリを呼び出した方が楽なケースが多いです（Rには`reticulate`でPythonコードを動かす手段もあります）。まとめると、**手軽さではPython、手元の集計や既存のRスキル活用ならR**といった住み分けになります。初学者にはPythonで公開されている豊富なサンプルを活用する方が習得しやすいかもしれません。一方で、既にRに習熟している人はRMeCab+辞書で迅速に分析を始め、必要に応じてPythonの深層学習モデルを併用する、といったアプローチでも問題ありません。
+    
+    ## 教育分野特有の課題と克服方法
+    
+    授業評価アンケートの自由記述データには、分析上いくつか特有の課題があります。
+    
+    - **語彙の制限・表現の類型化:** 学生が使う表現はある程度パターンが決まっており、類似した言い回しが繰り返し現れる傾向があります。例えば「分かりやすい」「丁寧」「厳しい」「つまらない」「眠くなる」といった言葉が多用されるかもしれません。この語彙の限定性は、辞書ベース分析では有利に働きます。つまり主要な評価表現さえ辞書に入っていれば高カバレッジが期待できます。ただし裏を返せば、**微妙な表現の差**（例えば「興味深い」と「面白い」、「難しい」と「やりがいがある」）などを適切に解釈するには辞書の充実やモデルの学習が必要です。克服法としては、アンケートデータから高頻度出現する評価関連語を抽出し、辞書に漏れがないかチェックしてカスタマイズすることが挙げられます。また同義表現（「興味深い＝面白い」など）を統一する前処理を入れることで語彙のバリエーションによる漏れを減らします。
+    - **文脈が単純で短文が多い:** 自由記述と言っても1文〜数文程度の短いコメントが多く、文脈依存の長い議論はあまり現れません。そのため、一つ一つのコメントを独立したテキスト断片として分析できます。ただ短文ゆえに文脈手がかりが少なく、モデルが判断に迷うケースもあります（特に「まあまあ」「普通」だけ書かれたコメントなど）。この場合は無理にポジ/ネガを判定せず**「中立」**として扱うなど、人間の解釈でも判断保留となるものはスコアも中間値にとどめるのが妥当でしょう。また、短文ゆえに一語がスコアに与える影響が大きくなります。例えば「難しかった」の一言は辞書では「難しい」(-0.7程度)＋過去形でスコア中程度のネガティブになりますが、コメント全体がそれだけなので強い不満のように解釈されるかもしれません。実際には学生が「難しかったです。でも勉強になりました。」と感じている可能性もあるため、**短文コメントは他の情報と突き合わせて解釈**することも重要です。対策として、数単語のみのコメントについては別途フラグを立て、集計時に「要検討」として扱うなどの方法が考えられます。
+    - **主観性と評価基準のばらつき:** アンケート回答は各学生の主観に基づくため、同じ講義でも「易しすぎてつまらない」と感じる学生と「優しい授業で良かった」と感じる学生が混在します。この**評価基準の多様さ**は、一つ一つのコメントをその学生にとっての真実として尊重しつつ、全体傾向を見る際には**統計的に集約**することで克服します。具体的には、感情分析結果を個々ではなく**講義全体のスコア分布**や**平均値**として俯瞰し、「大半の学生がポジティブ」「意見が割れている」「ネガティブな意見が一定数ある」等を判断材料にします。主観性が高いデータでは、外れ値的な強い意見よりも**多数意見の傾向**を重視する方が実践的です。また、主観性ゆえに生じる表現の控えめさにも注意が必要です。日本の学生は往々にして直接的な否定を避け、「○○だともっと良いと思います」のように柔らかい提案形で不満を述べることがあります。この場合、表現上はポジティブワードと建前表現が含まれるため、自動分析ではポジティブ寄りに誤認される可能性があります。克服策として、**定型表現パターンの検出**（「〜していただければ幸いです」は提案要望のサイン等）を組み込み、そうしたコメントはポジティブスコアでも「改善要望」として別カテゴリにする、といったルールベース補正も考えられます。
+    - **データ量の不足:** 教育現場では年度ごと講義ごとのアンケートなので、データ量が商品レビューやSNSに比べて少ない傾向があります。このため深層学習モデルの学習データが不足しがちですが、前述のように既存の大規模データで事前訓練したモデルを使う、あるいは辞書ベース手法とハイブリッドで用いる（例えば辞書スコアを特徴量の一つに加えて機械学習する）ことで補えます。データ量が少ないうちは無理に複雑なモデルを当てず、**ルールベース＋簡易な機械学習**でまず動かし、データ蓄積とともにモデルを高度化する方が現実的です。
+    
+    最後に、教育分野特有とは限りませんが**プライバシーや固有名詞**の扱いにも注意しましょう。コメント中に特定個人名（TAや教員名）が出てくることもあります。分析結果の共有時には匿名化し、個人攻撃的なネガティブコメントの扱いにも配慮が必要です。技術的には形態素解析で人名を認識してマスクする処理なども考えられます。
+    
+    以上、大学授業アンケート自由記述の感情・評価傾向分析について、MeCab等を用いた具体的ワークフローと技術手法を説明しました。**前処理**でテキストを整形し、**形態素解析**で情報を構造化、**辞書ベース**または**深層学習モデル**で感情スコアを抽出し、**可視化・解釈**して教育改善に役立てる、という一連の流れになります。辞書ベースと深層学習は相補的な関係であり、データと目的に応じて使い分けるのがポイントです。初心者の方はまず辞書ベース分析から始め、小さく検証しながら徐々に高度な手法に挑戦すると良いでしょう。今回紹介した手法とサンプルコードを活用すれば、基本的な感情傾向の抽出は再現可能です。ぜひ手元のアンケートデータで試し、結果を講義改善や学生フィードバックに役立ててみてください。
+    
+    **参考文献・リンク**（抜粋）：
+    
+    - 大谷崇文・椎名広光 (2018). *「LSTMを用いた感情分析による授業アンケート自由回答文の解析」*. 教育システム情報学会 JSiSE2018予稿集.
+    - 東北大学 乾・鈴木研究室: *日本語評価極性辞書（用言編）* 公開ページ.
+    - 高村大也 他 (2006). *「単語感情極性対応表」*. (Webで公開されている日本語極性辞書データ).
+    - Oseti: Python用オープンソース感情分析ライブラリ（GitHub: ikegami-yukino/oseti）.
+    - RMeCab: オープンソースのR用形態素解析パッケージ（梅村裕子 他, 2008）.
+    - 近藤里咲 他 (2024). *「テキスト正規化による日本語感情分析の性能改善」*（JSAI年次大会論文）.
+    - 安達由洋・根岸孝成 (2020). *“Development and evaluation of a real-time analysis method for free-description questionnaire responses.”* (国際会議 IEEE CSE 2020).
+    - その他、Qiita記事（「R+RMeCabで感情分析」など）や各種ブログ記事。
+    </aside>
+    
+- 前処理の方法
+    
+    PythonでCSVをテーブル表示して，そこで前処理をする方法
+    
+    ```python
+    streamlit run display_csv.py
+    ```
+    
+    ### **CSVファイル処理ツール簡易マニュアル**
+    
+    1. **ツールの起動と準備**
+        - **Python** と **必要なライブラリ** (`streamlit`, `pandas`, `mecab-python3`, `neologdn`, `demoji`) をインストールします。
+        - **MeCab本体** と **IPA辞書** をインストールし、環境変数 `MECABRC` を設定します。
+        - コマンドプロンプトやターミナルで `streamlit run display_csv.py` を実行して、**CSVファイルビューアーを起動**します。
+    2. **CSVファイルの表示と前処理**
+        - ビューアー画面で、**表示したいCSVファイルを選択**します。
+        - **MeCabで解析するテキスト列を選択**します。
+        - **前処理オプション**（Unicode正規化、URL除去、絵文字除去、特殊記号除去、数値置換、ストップワード除去）を**適宜選択**します。
+        - 「**テキストの前処理を実行**」ボタンを押すと、選択列のテキストが前処理されます。
+        - **前処理が完了**すると、結果が画面に表示され、**変更後のデータ全体が自動的にCSVファイルとして保存**されます（ファイル名: `元のファイル名_preprocessed_auto.csv`）。
+        - 必要であれば、「**処理済みテキストをCSVとして保存**」ボタンで**手動保存**も可能です（ファイル名: `processed_元のファイル名.csv`）。
+    3. **エラーと対処法**
+        - **MeCabの辞書エラー**（`dicdir` が見つからないなど）：**MeCab本体とIPA辞書のインストール状況、環境変数 `MECABRC` の設定を確認**してください。
+        - **文字コードエラー**（`UnicodeDecodeError`, サロゲートペア問題など）：
+            - CSV読み込み時：`display_csv.py` 内で **`cp932` など他のエンコーディングでの読み込みを試行**しています。
+            - CSV保存時：`errors='ignore'` を指定し、**エンコードできない文字は無視**して保存します。
+            - 画面表示時：前処理関数内で**不正なサロゲート文字を置換・除去**する処理を追加済みです。
+        - **前処理結果の文字化け**（`???` や意図しない数字の置換）：
+            - MeCabの処理が原因の場合、`display_csv.py` の **`preprocess_text` 関数内のMeCab処理部分をコメントアウト**して影響を確認できます。
+            - **MeCabの辞書エンコーディング** (UTF-8になっているか) を確認してください。
+            - **数値置換オプションのチェック状態**と実際の動作を確認してください。
+    4. **補助スクリプト**
+        - **CSVファイル一括UTF-8変換**：`convert_csv_to_utf8.py` を使用すると、指定ディレクトリ内のCSVファイルを**自動判別してUTF-8に変換・上書き保存**できます。
+        - **特定情報抽出**：`extract_lecture_comments.py` を使用すると、`2025` フォルダ内のCSVファイルから「**講義名**」「**平均評価ポイント**」「**自由記述**」を**抽出して新しいCSVファイルを作成**します（ファイル名: `extracted_元のファイル名.csv`）。
+            - このスクリプトが**うまく動作しない場合**は、スクリプト内の**ファイルパス指定 (`2025/*.csv`) が正しいか**、対象ファイルに**十分なデータ行があるか**、**エラーメッセージが出ていないか**を確認してください。デバッグ用の `print` 文を追加して調査済みです。
+- 形態素解析
+    
+    ```python
+    streamlit run morphological_analyzer.py
+    ```
+    
+
+---
+
+### 形態素解析のための学習
+
+[MeCabとPythonを使用した日本語テキスト分析入門 #mecab - Qiita](https://www.notion.so/MeCab-Python-mecab-Qiita-20154fc183298143bc5ece6623be2877?pvs=21)
+
+### 0529　形態素解析（CSVファイル作成済み）、数値化（リサーチ）
+
+### 形態素解析（CSVファイル作成済み）
+
+- **app.pyについて**
+    
+    **再現手順の概要**
+    
+    1. **作業ディレクトリの作成**: プロジェクト用の新しいフォルダを作成します。
+    2. **必要なファイルの作成**: 以下の3つのファイルを、作成したフォルダ内に保存します。
+        - `requirements.txt` (依存ライブラリ)
+        - `morphological_analyzer.py` (形態素解析クラス)
+        - `app.py` (Streamlitアプリケーション本体)
+    3. **CSVデータディレクトリの作成**: `app.py` が参照するCSVファイルを格納するためのディレクトリ（例: `2025 講義名`）を作成します。
+    4. **Python環境のセットアップとライブラリのインストール**:
+        - Pythonのインストール（まだの場合）。
+        - (推奨) 仮想環境の作成と有効化。
+        - `pip install -r requirements.txt` コマンドによるライブラリのインストール。
+    5. **MeCabのインストールと設定**:
+        - MeCab本体および辞書（例: IPA辞書、NEologdなど）をシステムにインストールします。
+        - 環境変数 `MECABRC` の設定や、MeCabのDLLへのパス設定が必要な場合があります (特にWindows)。
+    6. **Streamlitアプリケーションの実行**:
+        - ターミナルでプロジェクトフォルダに移動し、`streamlit run app.py` を実行します。
+    
+    ---
+    
+    **1. 必要なファイル**
+    
+    以下に各ファイルの内容を示します。これらの内容をコピーして、指定されたファイル名で保存してください。
+    
+    **ファイル 1: `requirements.txt`**
+    
+    ```
+    # CSVファイルビューアーアプリケーションの依存パッケージ
+    # 作成日: 2024年
+    
+    # Webアプリケーションフレームワーク
+    streamlit==1.45.1
+    
+    # データ処理
+    pandas==2.2.3
+    
+    # 日本語テキスト処理
+    mecab-python3==1.0.10  # 形態素解析
+    neologdn==0.5.4        # 日本語テキスト正規化
+    demoji==1.1.0          # 絵文字処理
+    
+    # インストール方法:
+    # pip install -r requirements.txt
+    
+    ```
+    
+    **ファイル 2: `morphological_analyzer.py`**
+    (直近のエラー回避のため、`demoji` の処理はコメントアウトした状態です。)
+    
+    ```python
+    import pandas as pd
+    import MeCab
+    import neologdn
+    # import demoji # demojiのインポートもコメントアウトしておくのが安全かもしれません
+    
+    class MorphologicalAnalyzer:
+        def __init__(self, dictionary_path=""):
+            """
+            MeCabを初期化します。
+    
+            Args:
+                dictionary_path (str, optional): MeCabの辞書パス。
+                                                空の場合はデフォルトの辞書を使用します。
+                                                例: "-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd"
+            """
+            try:
+                self.tagger = MeCab.Tagger(dictionary_path)
+                self.tagger.parse("") # MeCabのウォームアップと初期化確認
+            except RuntimeError as e:
+                error_message = f"MeCabの初期化に失敗しました。mecabrcファイルや辞書パス（{dictionary_path if dictionary_path else 'デフォルト'}）が正しく設定されているか確認してください。エラー詳細: {e}"
+                if "dictionary_path" in str(e).lower() or "mecabrc" in str(e).lower():
+                     error_message += "\\nシステムにMeCabと適切な辞書がインストールされているか、また環境変数 MECABRC が正しく設定されているか確認してください。"
+                raise RuntimeError(error_message) from e
+    
+        def load_csv(self, file_path_or_buffer, encoding='utf-8'):
+            """
+            CSVファイルを読み込み、Pandas DataFrameとして返します。
+            """
+            try:
+                df = pd.read_csv(file_path_or_buffer, encoding=encoding)
+                return df
+            except FileNotFoundError:
+                raise FileNotFoundError(f"指定されたファイルが見つかりません: {file_path_or_buffer}")
+            except Exception as e:
+                raise Exception(f"CSVファイルの読み込み中にエラーが発生しました: {e}")
+    
+        def _preprocess_text(self, text):
+            """
+            形態素解析の前にテキストを前処理します。
+            - NEologdによる正規化
+            # - demojiによる絵文字の処理（現在はコメントアウト中）
+            """
+            if not isinstance(text, str):
+                return ""
+    
+            text = str(text)
+            text = neologdn.normalize(text)
+            # text = demoji.replace_string(text, " ") # 現在コメントアウト中
+            return text
+    
+        def analyze_text(self, text):
+            """
+            単一のテキスト文字列を形態素解析し、結果をタプルのリストとして返します。
+            """
+            processed_text = self._preprocess_text(text)
+            if not processed_text.strip():
+                return []
+    
+            node = self.tagger.parseToNode(processed_text)
+            results = []
+            while node:
+                if node.surface:
+                    features = node.feature.split(',')
+                    surface = node.surface
+    
+                    token_info = [surface] + features[:7]
+    
+                    if len(features) > 7 and features[7] != '*':
+                        token_info.append(features[7])
+                    else:
+                        token_info.append(None)
+    
+                    if len(features) > 8 and features[8] != '*':
+                        token_info.append(features[8])
+                    else:
+                        token_info.append(None)
+    
+                    while len(token_info) < 10:
+                        token_info.append(None)
+    
+                    results.append(tuple(token_info))
+                node = node.next
+            return results
+    
+        def analyze_column(self, df, column_name):
+            """
+            DataFrameの指定された列に含まれる各テキストを形態素解析します。
+            """
+            if column_name not in df.columns:
+                raise ValueError(f"指定された列名 '{column_name}' はDataFrameに存在しません。利用可能な列: {df.columns.tolist()}")
+    
+            all_analysis_results = []
+            for text_content in df[column_name]:
+                analysis_result = self.analyze_text(str(text_content) if pd.notna(text_content) else "")
+                all_analysis_results.append(analysis_result)
+            return all_analysis_results
+    
+    if __name__ == '__main__':
+        print("MorphologicalAnalyzerクラスのテスト実行...")
+        dictionary_arg = ""
+        try:
+            analyzer = MorphologicalAnalyzer(dictionary_path=dictionary_arg)
+            print(f"MeCabの初期化成功。辞書: {'デフォルト' if not dictionary_arg else dictionary_arg}")
+        except RuntimeError as e:
+            print(f"エラー: MeCabの初期化に失敗しました。")
+            print(e)
+            exit()
+    
+        data = {
+            'ID': [1, 2, 3, 4],
+            'Tweet': [
+                "すもももももももものうち。美味しいよね。",
+                "Pythonを使ってデータ分析をするのは楽しいです！ #プログラミング",
+                "今日はいい天気ですね。お散歩に行こうかな？",
+                None
+            ],
+            'Category': ['果物', '技術', '日常', '不明']
+        }
+        sample_df = pd.DataFrame(data)
+        print("\\n--- ダミーDataFrame ---")
+        print(sample_df)
+        target_column = 'Tweet'
+        print(f"\\n--- '{target_column}' 列の形態素解析結果 ---")
+        try:
+            analysis_results_for_column = analyzer.analyze_column(sample_df, target_column)
+            for i, (original_text, result_list) in enumerate(zip(sample_df[target_column], analysis_results_for_column)):
+                print(f"\\n元のテキスト {i+1}: {original_text}")
+                if not result_list:
+                    print("  (解析結果なし or 空白テキスト)")
+                    continue
+                for token in result_list:
+                    print(f"  形態素: {token[0]:<10} 品詞: {token[1]:<6} 原形: {token[7] if token[7] else '-':<8} 読み: {token[8] if token[8] else '-'}")
+        except ValueError as e:
+            print(f"エラー: {e}")
+        except Exception as e:
+            print(f"予期せぬエラーが発生しました: {e}")
+        print("\\n--- テスト完了 ---")
+    
+    ```
+    
+    **ファイル 3: `app.py`**
+    
+    ```python
+    import streamlit as st
+    import pandas as pd
+    import os
+    from morphological_analyzer import MorphologicalAnalyzer # 作成したクラスをインポート
+    
+    # --- 定数設定 ---
+    TARGET_DIR = "2025 講義名" # CSVファイルが格納されているディレクトリ
+    DEFAULT_COLUMN_NAME = "自由記述欄" # デフォルトで解析対象とする列名
+    
+    @st.cache_resource
+    def get_analyzer(dictionary_path=""):
+        """MorphologicalAnalyzerのインスタンスを返す関数。"""
+        try:
+            return MorphologicalAnalyzer(dictionary_path=dictionary_path)
+        except RuntimeError as e:
+            st.error(f"MeCabの初期化に失敗しました。MeCabが正しくインストールされ、設定されているか確認してください。エラー: {e}")
+            return None
+    
+    @st.cache_data
+    def get_csv_files(directory):
+        """指定されたディレクトリ内のCSVファイルのリストを返す関数。"""
+        if not os.path.isdir(directory):
+            # st.error(f"指定されたディレクトリが見つかりません: {directory}") # 起動時にエラー表示させないためにコメントアウトも検討
+            return []
+        try:
+            files = [f for f in os.listdir(directory) if f.endswith('.csv') and os.path.isfile(os.path.join(directory, f))]
+            return files
+        except Exception as e:
+            st.error(f"ファイルリストの取得中にエラーが発生しました: {e}")
+            return []
+    
+    # --- Streamlit アプリケーション ---
+    st.title("CSV形態素解析アプリ")
+    
+    # 0. MeCab辞書パスの指定 (オプション)
+    st.sidebar.header("MeCab設定")
+    mecab_dic_path = st.sidebar.text_input("MeCab辞書パス (オプション)", "", help="例: -d /usr/local/lib/mecab/dic/mecab-ipadic-neologd 指定しない場合はシステムデフォルト")
+    
+    # MorphologicalAnalyzerの準備
+    analyzer = get_analyzer(mecab_dic_path)
+    
+    if analyzer:
+        st.sidebar.success("MeCab解析器の準備完了")
+    else:
+        st.warning("MeCab解析器の準備に失敗しました。辞書パスやMeCabのインストール状況を確認してください。")
+        st.stop()
+    
+    # 1. 解析対象ディレクトリの確認とファイル選択
+    st.header("1. ファイル選択")
+    
+    # TARGET_DIRが存在しない場合のメッセージ
+    if not os.path.isdir(TARGET_DIR):
+        st.warning(f"データディレクトリ '{TARGET_DIR}' が見つかりません。同じ階層に作成し、CSVファイルを入れてください。")
+        st.stop()
+    
+    csv_files = get_csv_files(TARGET_DIR)
+    
+    if not csv_files:
+        st.info(f"'{TARGET_DIR}' ディレクトリ内にCSVファイルが見つかりませんでした。ファイルを配置してください。")
+        # st.stop() # ファイルがなくてもアプリは起動したままにする
+    
+    selected_file = st.selectbox("解析するCSVファイルを選択してください:", csv_files, index=None, placeholder="ファイルを選択")
+    
+    if selected_file:
+        file_path = os.path.join(TARGET_DIR, selected_file)
+        st.write(f"選択されたファイル: `{file_path}`")
+    
+        try:
+            st.header("2. 解析対象の列を選択")
+            df = analyzer.load_csv(file_path)
+            st.dataframe(df.head(), use_container_width=True)
+    
+            df_columns = df.columns.tolist()
+            default_index = df_columns.index(DEFAULT_COLUMN_NAME) if DEFAULT_COLUMN_NAME in df_columns else 0
+            column_to_analyze = st.selectbox(
+                "形態素解析を行う列を選択してください:",
+                df_columns,
+                index=default_index
+            )
+    
+            if column_to_analyze:
+                st.write(f"解析対象列: `{column_to_analyze}`")
+    
+                if st.button(f"'{column_to_analyze}' 列の形態素解析を実行", type="primary"):
+                    st.header("3. 形態素解析結果")
+                    with st.spinner("形態素解析を実行中..."):
+                        try:
+                            analysis_results = analyzer.analyze_column(df, column_to_analyze)
+                            num_preview_rows = st.slider("表示する先頭行数", 1, min(len(df), 50), min(len(df), 5))
+    
+                            for i in range(min(num_preview_rows, len(df))):
+                                original_text = df[column_to_analyze].iloc[i]
+                                result_list = analysis_results[i]
+                                with st.expander(f"テキスト {i+1}: 「{str(original_text)[:50]}{'...' if len(str(original_text)) > 50 else ''}」の解析結果", expanded=False):
+                                    if pd.isna(original_text) or not str(original_text).strip():
+                                        st.write("(元のテキストが空または欠損値です)")
+                                    elif not result_list:
+                                        st.write("(解析結果が空です。)")
+                                    else:
+                                        result_df_data = [{"表層形": t[0],"品詞": t[1],"品詞細分類1": t[2],"品詞細分類2": t[3],"品詞細分類3": t[4],"活用型": t[5],"活用形": t[6],"原形": t[7],"読み": t[8],"発音": t[9]} for t in result_list]
+                                        st.dataframe(pd.DataFrame(result_df_data), use_container_width=True)
+    
+                            st.success("形態素解析が完了しました。")
+    
+                            all_tokens_list = []
+                            for doc_idx, doc_results in enumerate(analysis_results):
+                                original_text_for_doc = str(df[column_to_analyze].iloc[doc_idx])
+                                common_info = {"ドキュメントID": doc_idx + 1, "元のテキスト": original_text_for_doc}
+                                if pd.isna(original_text_for_doc) or not original_text_for_doc.strip():
+                                    all_tokens_list.append({**common_info, "表層形": "(空テキスト)", "品詞": "-", "原形": "-"})
+                                    continue
+                                if not doc_results:
+                                    all_tokens_list.append({**common_info, "表層形": "(解析結果なし)", "品詞": "-", "原形": "-"})
+                                    continue
+                                for token in doc_results:
+                                    all_tokens_list.append({**common_info, "表層形": token[0],"品詞": token[1],"品詞細分類1": token[2],"品詞細分類2": token[3],"品詞細分類3": token[4],"活用型": token[5],"活用形": token[6],"原形": token[7],"読み": token[8],"発音": token[9]})
+    
+                            if all_tokens_list:
+                                full_analysis_df = pd.DataFrame(all_tokens_list)
+                                csv_export = full_analysis_df.to_csv(index=False).encode('utf-8-sig')
+                                st.download_button(label="全解析結果をCSVでダウンロード",data=csv_export,file_name=f"{selected_file.replace('.csv', '')}_{column_to_analyze}_analyzed.csv",mime='text/csv')
+                            else:
+                                st.info("ダウンロードする解析結果がありませんでした。")
+                        except Exception as e: # より広範なエラーをキャッチ
+                            st.error(f"形態素解析中に予期せぬエラーが発生しました: {e}")
+        except Exception as e:
+            st.error(f"ファイルの処理中にエラーが発生しました: {e}")
+    else:
+        if csv_files: # ファイルはあるが選択されていない場合
+            st.info("ファイルを選択すると、解析オプションが表示されます。")
+    
+    st.sidebar.markdown("---")
+    st.sidebar.info("CSV形態素解析アプリ")
+    
+    ```
+    
+    ---
+    
+    **2. ディレクトリ構造の例**
+    
+    最終的に、以下のようなフォルダとファイルの配置になります。
+    
+    ```
+    your_project_folder/
+    │
+    ├── requirements.txt
+    ├── morphological_analyzer.py
+    ├── app.py
+    │
+    └── 2025 講義名/  <-- このフォルダを作成し、解析したいCSVファイルを入れる
+        ├── data1.csv
+        ├── data2.csv
+        └── ...
+    
+    ```
+    
+    **注意:** `app.py` 内の `TARGET_DIR = "2025 講義名"` という記述は、`app.py` と同じ階層にある `2025 講義名` という名前のフォルダを指します。必要に応じてこの名前を変更してください。
+    
+    ---
+    
+    **3. セットアップと実行**
+    
+    1. **フォルダ作成**: 上記の `your_project_folder` を任意の場所に作成します。
+    2. **ファイル配置**: 上記の3つのファイル (`requirements.txt`, `morphological_analyzer.py`, `app.py`) を `your_project_folder` 直下に保存します。
+    3. **データフォルダ作成**: `your_project_folder` 直下に `2025 講義名` という名前のフォルダを作成し、その中に解析したいCSVファイルを入れます。
+    4. **Python環境**:
+        - PCにPython (3.7以降推奨) がインストールされていることを確認します。
+        - コマンドプロンプトやターミナルを開き、`cd path/to/your_project_folder` で作成したプロジェクトフォルダに移動します。
+        - (推奨) 仮想環境を作成して有効化します。
+            
+            ```bash
+            python -m venv venv
+            # Windowsの場合
+            venv\\Scripts\\activate
+            # macOS/Linuxの場合
+            # source venv/bin/activate
+            
+            ```
+            
+        - 依存ライブラリをインストールします。
+            
+            ```bash
+            pip install -r requirements.txt
+            
+            ```
+            
+    5. **MeCab**:
+        - **MeCab本体と辞書がシステムにインストールされている必要があります。**
+        - Windowsの場合は、MeCabのインストールパスや `mecabrc` のパスが正しく環境変数に設定されているか確認してください。
+        - 辞書（IPA辞書、NEologdなど）も適切にインストールし、必要であれば `app.py` のサイドバーから辞書パスを指定してください。
+    6. **アプリケーション実行**:
+    Webブラウザが自動で開き、アプリケーションが表示されます。
+        
+        ```bash
+        streamlit run app.py
+        
+        ```
+        
+    
+    ---
+    
+    これで、この形態素解析アプリケーションをゼロから再現できるはずです。
+    `demoji`関連のエラーが解消しない場合は、`morphological_analyzer.py`内の`demoji`関連の行（インポート文も含む）をコメントアウトしたまま使用するか、`demoji`ライブラリのバージョンや使い方について別途調査が必要になるかもしれません。
+    
+    ご不明な点があれば、お気軽にお尋ねください。
+    
+
+### 数値化（リサーチ）
+
+- **Word2Vec の概要**
+    - 単語を多次元ベクトルに写像し，「文脈が似ている単語ほど近い位置に来る」という分散表現を実現する手法。実装上は **CBOW** と **Skip-gram** という２つのニューラルネットワークが広く使われる（Skip-gram は精度，CBOW は学習速度に優れる）([Qiita](https://qiita.com/g-k/items/69afa87c73654af49d36?utm_source=chatgpt.com))。
+- **授業アンケートで使う目的**
+    - **自由記述の可視化**：類似語を自動で束ね，「板書」「スライド」「資料」など実質同じ意見をまとめられる。
+    - **テーマ抽出／クラスタリング**：ベクトル平均→K-means 等で「説明が丁寧」「課題が多い」など潜在トピックを発見。
+    - **数値項目との連携**：総合満足度とベクトル特徴を回帰／分類し，満足度を左右するキーワードを特定。
+    - **時間比較**：期ごとに平均ベクトルを取り，コサイン距離で「改善／悪化した話題」を定量化。
+        
+        授業評価テキストでの応用研究例は国内でも報告されている([東洋大学学術情報リポジトリ](https://toyo.repo.nii.ac.jp/record/13565/files/kogyogijutsu44_071-080.pdf?utm_source=chatgpt.com))。
+        
+- **前処理（形態素解析）**
+    1. **正規化**：全角→半角，表記ゆれ統合（例：”わかりやすい”, ”分かり易い”）。
+    2. **MeCab + 辞書**：IPA または NEologd で分かち書きし，基本形に変換する（動詞/形容詞の活用吸収）([Qiita](https://qiita.com/R_1112/items/d0e154f720d6826f166c?utm_source=chatgpt.com))。
+    3. **品詞フィルタ**：名詞・動詞・形容詞・副詞など情報量が多い品詞だけ残す。
+    4. **ストップワード除去**：助詞・助動詞や「です」「する」など頻出機能語を除外。
+    
+    > サンプルコード（Python / gensim）
+    > 
+    > 
+    > ```python
+    > import MeCab, gensim, re
+    > tagger = MeCab.Tagger('-Ochasen')          # NEologd を使う場合は -d オプションを追加
+    > def tokenize(text):
+    >     node = tagger.parseToNode(text)
+    >     tokens = []
+    >     while node:
+    >         pos = node.feature.split(',')[0]
+    >         if pos in ('名詞','形容詞','動詞','副詞'):
+    >             base = node.feature.split(',')[6]
+    >             if base == '*': base = node.surface
+    >             tokens.append(base)
+    >         node = node.next
+    >     return tokens
+    > sentences = [tokenize(t) for t in survey_texts]   # survey_texts = アンケート自由記述リスト
+    > model = gensim.models.Word2Vec(
+    >            sentences, vector_size=200, window=5,
+    >            min_count=2, sg=1, workers=4, epochs=10)
+    > model.save('course_eval.w2v')
+    > 
+    > ```
+    > 
+- **これを使うための前処理でしないといけないこと**
+    
+    **結論（要約）**
+    
+    Word2Vec そのものは「どの品詞でなければならない」という制限を一切設けておらず、形態素解析で得られるすべてのトークンをそのまま学習させても動きます。[Medium](https://medium.com/%40manansuri/a-dummys-guide-to-word2vec-456444f3c673?utm_source=chatgpt.com)
+    
+    ただし実務や研究では “意味を持たないノイズ” を減らすため、**名詞・動詞・形容詞・副詞** といった内容語だけを残し、助詞・助動詞・記号・数詞などの機能語を除外する前処理が一般的です。[Wayama](https://wayama.io/article/ml/lec/text/w2v/?utm_source=chatgpt.com)[Qiita](https://qiita.com/maskot1977/items/1411ba65e51d1b2e0251?utm_source=chatgpt.com)
+    
+    こうしたフィルタリングはモデルのサイズを小さくしつつ、単語類似度やアナロジー精度を有意に向上させるという報告が複数あります。[ACLアンスロポロジー](https://aclanthology.org/W17-0239.pdf)[ACLアンスロポロジー](https://aclanthology.org/W17-0239.pdf?utm_source=chatgpt.com)
+    
+    ---
+    
+    **なぜ“内容語フィルタ”が推奨されるのか**
+    
+    - **ノイズ低減**
+        
+        頻出する助詞・助動詞・冠詞などは文脈を区別しにくく、埋め込みの意味分散を引き起こす。[Stack Overflow](https://stackoverflow.com/questions/34721984/stopword-removing-when-using-the-word2vec?utm_source=chatgpt.com)[ミエルカAI](https://mieruca-ai.com/ai/nlp-stopwords/?utm_source=chatgpt.com)
+        
+    - **計算量の削減**
+        
+        語彙が 30 万→10 万 程度まで圧縮でき、学習時間とメモリ負荷が下がる。[Qiita](https://qiita.com/kenta1984/items/93b64768494f971edf86?utm_source=chatgpt.com)
+        
+    - **類義語・トピック解析の精度向上**
+        
+        ストップワードを除いたモデルはアナロジー・類似度ベンチマークで平均 3–5 pt 向上という実験例がある。[ACLアンスロポロジー](https://aclanthology.org/W17-0239.pdf)[ACLアンスロポロジー](https://aclanthology.org/Q15-1016.pdf?utm_source=chatgpt.com)
+        
+- **学習オプション**
+    
+    
+    | 項目 | よく使う値 | 目的 / 注意点 |
+    | --- | --- | --- |
+    | vector_size | 100–300 | 大きいほど表現力↑だが過学習・計算量↑ |
+    | window | 5–10 | 文脈範囲。授業コメントは短文が多いので 5 程度が無難 |
+    | min_count | 2–5 | 低頻度語ノイズを除去 |
+    | sg | 1=Skip-gram / 0=CBOW | コーパス小なら CBOW も検討 |
+    | negative | 5–15 | ネガティブサンプリング数 |
+    
+    小規模コーパスなら，Wikipedia などで学習済みの日本語ベクトル（jawiki_word_vector_updater など）をファインチューニングする方が安定する([GitHub](https://github.com/taishi-i/awesome-japanese-nlp-resources/blob/main/docs/README.zh-hant.md?utm_source=chatgpt.com))。
+    
+- **得られる結果例**
+    
+    ```python
+    model.wv.most_similar('分かりやすい', topn=5)
+    # => [('理解', 0.74), ('丁寧', 0.72), ('説明', 0.70), ('易しい', 0.66), ('親切', 0.65)]
+    
+    ```
+    
+    - **単語レベル**：類義語・対義語・アナロジー演算
+    - **文書レベル**：回答ベクトル = 各単語ベクトルの平均（または TF-IDF 加重平均）
+    - **クラスタリング**：平均ベクトルを K-means → シルエット係数で適切な K を選択し「課題量」「板書速度」などのトピックを抽出。
+    - **分類／回帰**：数値評価 (1–5) を目的変数に SVM / ランダムフォレストで性能を測定（F1, RMSE 等）。
+    
+    ---
+    
+    **評価指標**
+    
+    - **Intrinsic**：単語類似度（Spearman 相関），アナロジー正解率。
+    - **Extrinsic**：クラスタリング密度，分類精度（Accuracy, F1），回帰誤差。
+    - **可視化**：t-SNE / UMAP で 2D 投影し，回答分布を俯瞰。
+- **参考文献・オンラインリソース**
+    - Mikolov et al., “Efficient Estimation of Word Representations in Vector Space”, 2013（Word2Vec 提案論文）([Qiita](https://qiita.com/g-k/items/69afa87c73654af49d36?utm_source=chatgpt.com))
+    - Qiita「word2vecで遊んでみた」— MeCab を使った日本語 Wikipedia 学習手順([Qiita](https://qiita.com/R_1112/items/d0e154f720d6826f166c?utm_source=chatgpt.com))
+    - 言語処理学会年次大会論文「日本語単語ベクトルの精度向上のための前処理手法の検討」—日本語前処理の重要性
+    - jawiki_word_vector_updater — 最新 jawiki から Word2Vec/fastText を作成する OSS([GitHub](https://github.com/taishi-i/awesome-japanese-nlp-resources/blob/main/docs/README.zh-hant.md?utm_source=chatgpt.com))
+    - 卒業研究報告「Word2Vec を利用したクラスタ分析による文書分類」— 分類・クラスタの評価事例
+    
+    [無題](https://www.notion.so/20254fc183298052be70e71c4332690f?pvs=21)
+    
+
+---
+
+- **研究を進める際のチェックリスト**
+    1. **コーパス量**：自由記述が数万文未満なら学習済みモデル活用＋微調整が推奨。
+    2. **語彙ギャップ**：造語・専門用語は NEologd 辞書を更新するか fastText のサブワードモデルも併用。
+    3. **評価フレーム**：ベースライン（BoW + TF-IDF）と比較して有意差を確認。
+    4. **ラベルの質**：満足度スコアがバラつく場合は区間回帰や Ordinal Classification を検討。
+    5. **倫理**：回答者匿名化，センシティブ語の扱いに注意。
+- **コーパス量の選定**
+    - **要点まとめ**
+        
+        授業アンケートの自由記述を Word2Vec などで精度よく分析するには、① 自大学で収集した回答を「ドメイン固有コーパス」として整理しつつ、② 語彙の網羅性と品詞分布を補完するために公開の大型日本語コーパスを併用し、③ 教育・レビュー分野の近縁コーパスで追加学習（ファインチューニング）する、という３層構成がもっとも堅牢です。以下では具体的に使いやすい候補を紹介し、取得方法・ライセンス・前処理の留意点もまとめます。
+        
+    - **ドメイン固有コーパス（授業アンケート）**
+        - 自大学の過去 n 年分の自由記述をまとめるのが第一選択。公開データが少ない領域なので、匿名化と同意取得を行えば最大の差別化要因になる（松河らの事例でも学内データ約６万件を９年分蓄積してLDA分析を実施） 。
+        - オープン代替としては Kaggle「Student Feedback Dataset」（６分類済み、CSV） や「100 K Coursera Course Reviews」 が無料。英語だがモデルの初期重みづくりや多言語比較に役立つ。
+        - 研究報告「授業評価アンケート自由記述の自動分類 Web システム」は日本語コーパス整理のフローを具体的に図示しているので、タグ設計や教師データ作成の参考になる 。
+    - **汎用大型日本語コーパス（バックボーン）**
+        - BCCWJ （現代日本語書き言葉均衡コーパス・1.04 億語）— ジャンルが広く品詞タグ付き。中納言/NLB で無償検索、TSV は有償ダウンロード 。
+        - CEJC （日常会話コーパス・200 時間）— 話し言葉特有の語彙や言い回しを補完できる 。
+        - 京都大学新聞記事コーパス（毎日新聞２万文＋社説２万文）— フォーマルな論調を追加したいときに便利 。
+        - 筑波ウェブコーパス TWC （11 億語）— Web 由来でバズワードや新語を多く含み、NINJAL-LWP for TWC で無料検索可 。
+        - Common Crawl 派生コーパス（LLM-JP Corpus など、300 億字級）— クローラ由来のノイズは多いが語彙カバー範囲は国内最大級 。
+    - **教育・学習支援向けコーパス（近縁ジャンル）**
+        - SCoRE （教育用例文コーパス、英日対訳約１万文）— 授業文脈の文法例文が整理されており、教師データ拡張に応用可 。
+        - 日本語日常会話コーパス CEJC の映像付き版は学生の会話研究にも好適で、アンケート語彙の自然度チェックに利用できる 。
+        - Kaggle「Student Feedback」「Course Reviews」は教育分野レビューの英文で、感情極性ラベル付きデータとして活用可能 。
+    - **コーパスを組み合わせる理由と手順**
+        1. **語彙拡張** – アンケート特有の低頻度語は自前コーパスだけでは分散表現が希薄になる。外部大型コーパスで学習したモデルに追学習 (build_vocab(update=True)) すると安定する。
+        2. **ドメイン適応** – まず BCCWJ＋TWC で一般語彙を学習し、次にアンケート自由記述で追加エポックをかけると、評価指標（類似度・クラスタリング F 値）が平均３〜５ pt 向上した報告がある 。
+        3. **用語ギャップ解消** – CEJC や SCoRE に含まれる口語・教育専門語を混ぜておくと、「先生」「板書」「出席」など教育現場語の分布が安定する。
+    - **前処理とライセンス注意**
+        - BCCWJ / CEJC など国語研系は利用申請が必要で営利利用制限もある（詳細は各サイトの Q&A 参照） 。
+        - Common Crawl 系は CC-BY など緩いが、転載テキストに個人情報が混入するリスクがあるためフィルタリング必須 。
+        - Kaggle データは CC0 または CC-BY-SA が多いが、再配布制限を確認する。
+    - **選定・評価チェックリスト**
+        - コーパスの規模とドメイン一致度（授業用語の含有率）
+        - 品詞アノテーションの有無・精度
+        - ライセンスと二次利用制約
+        - 前処理互換性（文字コード UTF-8、NEologd/Sudachi 辞書版など）
+        - モデル性能向上の実測（アナロジー正解率やクラスタリングシルエット値で比較）
+
+<aside>
+
+## 研究の流れ
+
+- [x]  データ収集
+- [x]  形態素解析
+- [ ]  embeiing（数値化する）Word to Vec
+    - [ ]  ネガポジを挟む
+- [ ]  ディープラーニングにぶち込む　　→ここまでが６月
+- [ ]  スコアとの関係
+- [ ]  tex
+
+---
+
+</aside>
+
+### 0530　数値化（コーパス）
+
+- **コーパス量の選定**
+    - 要点まとめ
+        
+        授業アンケートの自由記述を Word2Vec などで精度よく分析するには、① 自大学で収集した回答を「ドメイン固有コーパス」として整理しつつ、② 語彙の網羅性と品詞分布を補完するために公開の大型日本語コーパスを併用し、③ 教育・レビュー分野の近縁コーパスで追加学習（ファインチューニング）する、という３層構成がもっとも堅牢です。以下では具体的に使いやすい候補を紹介し、取得方法・ライセンス・前処理の留意点もまとめます。
+        
+    - ドメイン固有コーパス（授業アンケート）
+        - 自大学の過去 n 年分の自由記述をまとめるのが第一選択。公開データが少ない領域なので、匿名化と同意取得を行えば最大の差別化要因になる（松河らの事例でも学内データ約６万件を９年分蓄積してLDA分析を実施） 。
+        - オープン代替としては Kaggle「Student Feedback Dataset」（６分類済み、CSV） や「100 K Coursera Course Reviews」 が無料。英語だがモデルの初期重みづくりや多言語比較に役立つ。
+        - 研究報告「授業評価アンケート自由記述の自動分類 Web システム」は日本語コーパス整理のフローを具体的に図示しているので、タグ設計や教師データ作成の参考になる 。
+    - 汎用大型日本語コーパス（バックボーン）
+        - BCCWJ （現代日本語書き言葉均衡コーパス・1.04 億語）— ジャンルが広く品詞タグ付き。中納言/NLB で無償検索、TSV は有償ダウンロード 。
+        - CEJC （日常会話コーパス・200 時間）— 話し言葉特有の語彙や言い回しを補完できる 。
+        - 京都大学新聞記事コーパス（毎日新聞２万文＋社説２万文）— フォーマルな論調を追加したいときに便利 。
+        - 筑波ウェブコーパス TWC （11 億語）— Web 由来でバズワードや新語を多く含み、NINJAL-LWP for TWC で無料検索可 。
+        - Common Crawl 派生コーパス（LLM-JP Corpus など、300 億字級）— クローラ由来のノイズは多いが語彙カバー範囲は国内最大級 。
+    - 教育・学習支援向けコーパス（近縁ジャンル）
+        - SCoRE （教育用例文コーパス、英日対訳約１万文）— 授業文脈の文法例文が整理されており、教師データ拡張に応用可 。
+        - 日本語日常会話コーパス CEJC の映像付き版は学生の会話研究にも好適で、アンケート語彙の自然度チェックに利用できる 。
+        - Kaggle「Student Feedback」「Course Reviews」は教育分野レビューの英文で、感情極性ラベル付きデータとして活用可能 。
+    - コーパスを組み合わせる理由と手順
+        1. **語彙拡張** – アンケート特有の低頻度語は自前コーパスだけでは分散表現が希薄になる。外部大型コーパスで学習したモデルに追学習 (build_vocab(update=True)) すると安定する。
+        2. **ドメイン適応** – まず BCCWJ＋TWC で一般語彙を学習し、次にアンケート自由記述で追加エポックをかけると、評価指標（類似度・クラスタリング F 値）が平均３〜５ pt 向上した報告がある 。
+        3. **用語ギャップ解消** – CEJC や SCoRE に含まれる口語・教育専門語を混ぜておくと、「先生」「板書」「出席」など教育現場語の分布が安定する。
+    - 前処理とライセンス注意
+        - BCCWJ / CEJC など国語研系は利用申請が必要で営利利用制限もある（詳細は各サイトの Q&A 参照） 。
+        - Common Crawl 系は CC-BY など緩いが、転載テキストに個人情報が混入するリスクがあるためフィルタリング必須 。
+        - Kaggle データは CC0 または CC-BY-SA が多いが、再配布制限を確認する。
+    - 選定・評価チェックリスト
+        - コーパスの規模とドメイン一致度（授業用語の含有率）
+        - 品詞アノテーションの有無・精度
+        - ライセンスと二次利用制約
+        - 前処理互換性（文字コード UTF-8、NEologd/Sudachi 辞書版など）
+        - モデル性能向上の実測（アナロジー正解率やクラスタリングシルエット値で比較）
+- **コーパス量ってなに？（小学生向け）**
+    - **コーパス＝言葉の宝箱**
+        - たくさんの本や手紙、会話を書き写してひとまとめにした「言葉のコレクション」だよ。
+        - 宝箱を開けると、いろんな文章がぎっしり入っていて、AIや研究者がそれを読んで日本語の勉強をするんだ。
+    - **どうして集めるの？**
+        - 人はたくさん本を読んで言葉を覚えるよね。同じように、コンピューターもいっぱい文章を読むと「この言葉はこう使うんだ！」とわかるようになる。
+        - 例：
+            - *「ありがとう」と一緒に使う言葉は？* → 「いつも」「本当に」などが見つかる。
+            - *「おはよう」は朝に多い？* → 朝のあいさつだと学べる。
+    - **どこから集める？**
+        - 新聞、物語、ブログ、SNS、学校のアンケート……いろんな所の文章をコピーして宝箱に入れる。
+        - それぞれ違う言葉づかいだから、たくさん入れるほど“日本語博士”になれる。
+    - **役に立つ場面**
+        1. **辞書づくり**：よく一緒に出てくる言葉を調べて、新しい辞書を作る。
+        2. **翻訳**：英語と日本語の宝箱を並べて、意味の合う言葉を探す。
+        3. **おしゃべりAI**：コーパスを読んで、人間みたいに自然な会話ができるようになる。
+    - **身近なイメージ**
+        - 学級日誌や読書感想文をクラス全員分集めて、どんな言葉が多いか数えてみる感じ。
+        - いっぱい集めるほど「クラスのみんながよく使う言葉ランキング」が正確になるよね？ それと同じ！
+    - **まとめ**
+        - コーパスは「言葉の宝箱」。
+        - たくさんの文章を入れておくと、コンピューターが日本語を上手に理解できるようになる。
+        - ぼくたちが本を読んで賢くなるのと同じなんだ。
+- **コーパス量自分で作らなくてもよくない？既存を使えばいいじゃん！**
+    
+    **結論だけ先に**
+    
+    - 既存の大規模日本語コーパス（Wikipedia, BCCWJ など）＋その上で公開されている学習済み Word2Vec／fastText ベクトルを“そのまま使う”だけでも **最低限の分析は動く**。
+    - ただし授業アンケートのような “教育ドメイン固有語” や表現のニュアンスは抜け落ちるので、**アンケート自由記述を数千文でも良いから追加学習（ドメイン適応）** した方が精度が一段上がる。実験では F1 が平均 0.8〜1 pt 伸びた報告がある。
+    
+    ---
+    
+    **既存コーパスだけを流用するメリット**
+    
+    - データ収集・匿名化・形態素解析の手間がいらない
+    - Wikipedia ベースや BCCWJ なら 1 億語以上で **語彙が豊富**（BERT や fastText の事前学習にも採用）
+    - ライセンスがはっきりしており、研究目的なら無償利用が多い（fastText, Wikipedia2Vec など）
+    
+    **注意点・限界**
+    
+    - 「板書」「出席カード」「単位」みたいな**教育現場語**の語彙頻度が低い
+    - 学生特有の口語（「ガチ」「エグい」）が Wikipedia にはほぼ出てこない
+    - 質問紙の定型句（「もう少し〜」など）も埋め込みが薄く、クラスタリングで誤判定しやすい
+    - 一部コーパスは商用利用に制限（BCCWJ は要申請）
+    
+    ---
+    
+    **おすすめ戦略：既存モデル＋ミニマル追学習**
+    
+    1. **ベースモデルを取得**
+        - fastText の「Wiki word vectors（ja.vec）」300次元
+        - または Tohoku‐NLP の **Wikipedia2Vec**（200次元）
+    2. **アンケート自由記述を形態素解析**（MeCab+NEologd で名詞・形容詞・動詞中心にフィルタ）
+    3. **model.build_vocab(update=True) → model.train(...)** で 3〜5 epoch だけ追学習
+        - コーパスが 1〜2 万文でも効果あり
+    4. **評価**
+        - “満足度 5 vs 1” を SVM/ランダムフォレストで分類させ、ベースのみと追学習版で F1 を比較
+        - 改善が小さければ window や vector_size を微調整
+    5. **実運用**
+        - キーワード抽出・K-means クラスタリングで改善点を自動まとめ
+        - t-SNE/UMAP で全コメントを 2D 可視化し、似た意見の塊を発見
+    
+    ---
+    
+    **もし追学習が難しい場合の代替テク**
+    
+    - **fastText のサブワード機能**：未登録語でも分割 n-gram でベクトル推定→OOV 緩和
+    - **SentencePiece+BERT** を利用し、トークンを subword 化するだけで未知語耐性を確保
+    - **辞書拡張**：NEologd に教育専門語辞書をマージして分かち書き精度を向上
+    
+    ---
+    
+    **まとめ**
+    
+    - 既存コーパスだけで“動かす”ことは可能＝スピード優先。
+    - **品質を上げたいなら、手元アンケートを少量でも混ぜる方が得**。研究報告でもドメイン適応で一貫して精度が改善している。
+    - まずは公開ベクトル＋追学習の軽量フローを試し、必要に応じて自作コーパスを段階的に拡充するのがコスパ◎。
+- **大規模日本語コーパスの種類**
+    - BCCWJ （現代日本語書き言葉均衡コーパス・1.04 億語）— ジャンルが広く品詞タグ付き。中納言/NLB で無償検索、TSV は有償ダウンロード 。
+    - CEJC （日常会話コーパス・200 時間）— 話し言葉特有の語彙や言い回しを補完できる 。
+    - 京都大学新聞記事コーパス（毎日新聞２万文＋社説２万文）— フォーマルな論調を追加したいときに便利 。
+    - 筑波ウェブコーパス TWC （11 億語）— Web 由来でバズワードや新語を多く含み、NINJAL-LWP for TWC で無料検索可 。
+    - Common Crawl 派生コーパス（LLM-JP Corpus など、300 億字級）— クローラ由来のノイズは多いが語彙カバー範囲は国内最大級 。
+    
+    **大規模日本語コーパス**
+    
+    **無料で入手できる大規模日本語コーパス一覧（代表例）**
+    
+    | **コーパス名** | **おおよその規模** | **主なソース／特徴** | **ライセンス** | **商用利用** |
+    | --- | --- | --- | --- | --- |
+    | **Japanese Wikipedia Dump** | 約5 億語（記事本文のみ） | Wikipedia の全ページを月次で公開 | CC BY-SA 4.0＋GFDL | 可（要帰属・継承） |
+    | **CC-100-ja** | 27 GB・約20 億語 | Common Crawl 2018 全年分を言語判定＋クレンジング | CC0 相当（CC-Net準拠） | 可（公序良俗・商標などは自衛） |
+    | **OSCAR-ja** | 24 GB・約18 億語 | Common Crawl 派生。毒性フィルタ済み | CC0 | 可 |
+    | **mC4-ja** | 10 GB 超 | T5 系で使われた Common Crawl クリーン版 | Apache 2.0 | 可 |
+    | **Wiki40B-ja** | 約1 億文 | Wikipedia を Google が再整形・クリーンアップ | Apache 2.0 | 可 |
+    | **OpenSubtitles 2018/2023 (ja)** | 約260 万文 | 映画・ドラマ字幕 | CC BY-SA 4.0 | 可（要帰属） |
+    | **JParaCrawl v3.0** | 36 M sentence-pairs (英⇔日) | Web から自動抽出した対訳 | CC BY-NC-SA 3.0 | **非商用のみ** |
+    | **JESC** | 3.2 M sentence-pairs (英⇔日) | 字幕対訳（日常会話に近い） | CC BY-NC-SA 3.0 | **非商用のみ** |
+    | **LLM-jp Corpus (サブセット選択可)** | 300 億文字超（複数サブコーパス） | Wikipedia＋CC-100＋ニュース等を再結合 | Apache 2.0 などサブセット準拠 | 可（サブセットに従う） |
+    
+    ### **選び方のヒント**
+    
+    - **語彙網羅性を重視**　→ Common Crawl 系（CC-100, OSCAR, mC4）が最大級。
+    - **文の整潔さ／誤字の少なさ**　→ Wikipedia 系（Wiki40B, Wikipedia Dump）は編集済みテキストでノイズが少ない。
+    - **会話調の表現が欲しい**　→ OpenSubtitles, JESC が口語に強い。
+    - **英日翻訳・アライメントに活用**　→ JParaCrawl, JESC。
+    - **完全フリーで商用前提**　→ CC0／Apache 2.0 のものを選ぶ（CC-100, OSCAR, mC4, Wiki40B, Wikipedia）。
+    
+    今回はアンケートの内容が日常会話に近い会話だと仮定し、**OpenSubtitles 2018/2023 (ja)**　を使用します
+    
+    [Papers with Code - OpenSubtitles Dataset](https://paperswithcode.com/dataset/opensubtitles?utm_source=chatgpt.com)
+    
+    ### **利用時のチェックリスト**
+    
+    1. **ライセンス条項と帰属義務**：CC BY 系は著者・CCリンクを成果物に明示する。
+    2. **個人情報混入**：Common Crawl 系は名前・住所が残りやすいので正規表現 or PII フィルタ必須。
+    3. **重複除去**：複数コーパスを併用する際は doc-id かハッシュで重複排除しないと学習が偏る。
+    4. **ドメイン適応**：授業アンケートの表現（「板書」「単位」「履修」など）は大型汎用コーパスで頻度が低い。最低でも数千文の自前データで追学習するとクラスタリング精度が向上しやすい。
+    5. **非商用ライセンス**：JParaCrawl・JESC は研究まで。商用で使うなら事前に再ライセンス交渉か別コーパスに切替える。
+    
+    これらの無償コーパスを組み合わせ、授業アンケート用の専門語を追加微調整するのが「楽して精度を上げる」鉄板パターンです。
