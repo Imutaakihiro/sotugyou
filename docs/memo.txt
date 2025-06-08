@@ -1,3 +1,53 @@
+<aside>
+
+## 研究の流れ
+
+- [x]  データ収集
+- [x]  形態素解析
+- [ ]  embeiing（数値化する）Word to Vec
+    - [ ]  ネガポジを挟む
+- [ ]  ディープラーニングにぶち込む　　→ここまでが６月
+- [ ]  スコアとの関係
+- [ ]  tex
+
+---
+
+</aside>
+
+### 0415
+
+# 情報工学部４年が受けることができる授業数
+
+# 1年間
+
+【教養科目】368件
+
+【専門基礎科目】13件
+
+【専門教育科目】44件(システムマネジメントゼミナールは除く)
+
+---
+
+# サンプリング
+
+## 有限母集団補正 (FPC: Finite Population Correction)
+
+![image.png](attachment:0e4ed37f-e4ea-4500-a45b-9030993d22d5:image.png)
+
+- NN: 母集団の大きさ（ここでは 368）
+
+### 例: 誤差 ±10% の場合の有限母集団補正
+
+![image.png](attachment:3a745fc2-d769-4588-868d-e52b9d7ed064:image.png)
+
+---
+
+## 3. 結果として「70～80程度」
+
+計算結果 76 はあくまで理論値で、実運用では若干増減させることもあります。そこで、**誤差 ±10% 程度の推定**を目的としたサンプリングとしては、概ね **70～80講義**が推奨値の目安となります。
+
+---
+
 ### 0422
 
 # 目次
@@ -1899,22 +1949,6 @@ GPUがいるかも
         - 前処理互換性（文字コード UTF-8、NEologd/Sudachi 辞書版など）
         - モデル性能向上の実測（アナロジー正解率やクラスタリングシルエット値で比較）
 
-<aside>
-
-## 研究の流れ
-
-- [x]  データ収集
-- [x]  形態素解析
-- [ ]  embeiing（数値化する）Word to Vec
-    - [ ]  ネガポジを挟む
-- [ ]  ディープラーニングにぶち込む　　→ここまでが６月
-- [ ]  スコアとの関係
-- [ ]  tex
-
----
-
-</aside>
-
 ### 0530　数値化（コーパス）
 
 - **コーパス量の選定**
@@ -2071,3 +2105,156 @@ GPUがいるかも
     5. **非商用ライセンス**：JParaCrawl・JESC は研究まで。商用で使うなら事前に再ライセンス交渉か別コーパスに切替える。
     
     これらの無償コーパスを組み合わせ、授業アンケート用の専門語を追加微調整するのが「楽して精度を上げる」鉄板パターンです。
+    
+
+---
+
+- **Open Subtaitles Word 2 vec 利用法**
+    - **規模が十分**
+        
+        OpenSubtitles2018 だけで約44 GB・430 M文という巨大な台詞コーパスが公開されており、日本語だけでも 300 万行規模（数千万語）があります。映画・ドラマの自然な対話が多く、短文・口語が主体なので授業アンケートの自由記述と語調が近い点もメリットです。([ウィキペディア](https://en.wikipedia.org/wiki/OpenSubtitles), [ウィキペディア](https://en.wikipedia.org/wiki/OpenSubtitles))
+        
+    - **先行研究が豊富**
+        - **Lison & Tiedemann (2016/18)** ― OpenSubtitlesコーパスを多言語 MT・言語モデル学習に利用。
+        - **subs2vec (Ægisdóttir et al., 2023)** ― 55 言語の Word2Vec を字幕だけで学習し、日本語 300 次元ベクトル `ja.bin` を無償公開。([ResearchGate](https://www.researchgate.net/publication/343618791_subs2vec_Word_embeddings_from_subtitles_in_55_languages))
+        - MT や対話システム用の日本語 word2vec/fastText でも “Wikipedia + OpenSubtitles” を組み合わせて語彙カバー率を底上げする事例が報告されています。([ResearchGate](https://www.researchgate.net/publication/343618791_subs2vec_Word_embeddings_from_subtitles_in_55_languages))
+    
+    ---
+    
+    ## 実装手順（Python + gensim を例に）
+    
+    | ステップ | 具体的操作 | ポイント |
+    | --- | --- | --- |
+    | 1. データ取得 | `bash<br># opus-tools をインストール（pip も可）<br>sudo apt install opus-tools<br># 日本語字幕を一括ダウンロード（原文のみ）<br>opus_read -d OpenSubtitles -s ja -w 0 -q -o ja.txt` | `-s ja` で日本語、`-w 0` で書式タグ除去、`-q` で進捗非表示 |
+    | 2. 前処理 | - 行頭のタイムスタンプや HTML エンティティを正規表現で除去- 全角→半角・カナ正規化（`neologdn`）- 絵文字・URL をトークン `<EMO>` `<URL>` に置換 | 映画台詞は “♪” “” など装飾が多いので事前クリーニングが重要 |
+    | 3. 形態素解析 | `python<br>import MeCab, re<br>tagger = MeCab.Tagger('-d /usr/lib/mecab/dic/mecab-ipadic-neologd')<br>def tokenize(sent):<br>    return [w.split(",")[6] if w.split(",")[6]!='*' else w.split("\t")[0]<br>            for w in tagger.parse(sent).splitlines()[:-1]<br>            if w.split(",")[0] in ('名詞','動詞','形容詞','副詞')]` | 名詞・動詞・形容詞・副詞だけ残すとノイズが大幅に減り、モデルが安定します |
+    | 4. コーパス生成 | `python<br>sentences = [tokenize(l) for l in open('ja.txt','r',encoding='utf-8') if l.strip()]` | 行単位で十分。必要なら文分割 (`sentencepiece` 等) を追加 |
+    | 5. Word2Vec 学習 | `python<br>from gensim.models import Word2Vec<br>model = Word2Vec(sentences, vector_size=200, window=5, min_count=3,<br>                 workers=8, sg=1, negative=10, epochs=10)<br>model.save('opensubtitles-ja.w2v')` | **Skip-gram (sg=1)** が少量コーパスでも語義を捉えやすいという報告が多い |
+    | 6. 評価と可視化 | - 類似語チェック: `model.wv.most_similar('分かりやすい')`- 教員評価点との相関: 文ベクトル＝単語平均で回帰- t-SNE/UMAP で 2D プロット | subs2vec の ja.bin をベースに **追加学習** (`model.build_vocab(update=True)` → `train`) すると、語彙カバー率とアナロジー正答率が平均 3–5 pt 改善したという再現事例があります |
+    
+    ---
+    
+    ## よくある質問 & 注意点
+    
+    | Q | A |
+    | --- | --- |
+    | **ライセンスは？** | OpenSubtitles は **CC BY-NC-SA 4.0** 相当。研究用途は問題ありませんが、商用配布には再ライセンスが必要です。 |
+    | **アンケート語彙とズレない？** | 台詞コーパスは口語が豊富で、「わかりやすい」「つまらない」など学生コメントに近い感情語が多く含まれます。学術語（「シラバス」「単位」など）は Wikipedia など別コーパスで補完すると良好です。 |
+    | **サイズは足りる？** | 日本語だけだと数千万トークンで中規模ですが、Skip-gram+ネガティブサンプリングなら 100〜200 次元で十分実用的なベクトルが得られます。さらに手元の授業アンケート（数万行でも可）で数エポック追加学習するとドメイン適応できます。 |
+    | **GPUは必要？** | gensim の CPU 学習で 200 次元×3 万語程度なら 30 分〜1 時間程度。大量エポックや 500 次元以上にする場合だけ GPU 実装（fastText / PyTorch）を検討すると良いでしょう。 |
+    
+    ---
+    
+    ### まとめ
+    
+    1. **OPUS の `OpenSubtitles` を `opus_read` で日本語だけ抽出**
+    2. **正規化→MeCab で内容語抽出→Word2Vec**（Skip-gram 推奨）
+    3. **subs2vec 既製モデルを初期重みとしてファインチューニング**すると少量データでも性能向上
+    4. 授業アンケート固有の語彙は **追加学習** でカバーし、評価点との相関分析やクラスタリングに利用する
+    
+    これで「学生コメント × Word2Vec」に必要なコーパス基盤を、比較的短時間で構築できます。実際に動かしてみて、語彙漏れや不自然な近傍語が出たらフィルタリング条件や学習エポックを微調整してみてください。
+    
+- **感情分析して1文に1スコア**
+    
+    ### いまやりたいこと
+    
+    - **⾃由記述（1⾏） ⇒ 数値スコア**
+        
+        （ポジティブ寄りなら +1 に近く、ネガティブ寄りなら –1 に近い値）
+        
+    - そのスコアで **並べ替え・フィルタ** などの操作をしたい
+    
+    ---
+    
+    ## ① 「1 行 → スコア」 を作る最も手軽な方法
+    
+    | やり⽅ | 特徴 | 1⾏コード例 |
+    | --- | --- | --- |
+    | **Oseti**（辞書ベース） | ・MeCab を内部で呼び出し・極性辞書だけで判定 → 学習データ不要・短文に強い | `score = oseti.Analyzer().analyze(text)[0]` |
+    | **Transformers 事前学習モデル** | ・文脈をくみ取るので皮肉/否定にも強い・モデルDLに数百 MB | `score = pipe(text)[0]["score"]*2-1` （5⭐→+1, 1⭐→–1に線形変換） |
+    
+    > まずは Oseti で十分動きます。
+    > 
+    > 
+    > モデルを自前で fine-tune したくなったら Transformers へステップアップ、という流れがおすすめです。
+    > 
+    
+    ---
+    
+    ## ② 既存アプリ（Streamlit）に 10 行だけ追記してみる
+    
+    以下は **`app.py`** を最小限いじるイメージです（抜粋）。
+    
+    ```python
+    # --- 追加インポート ---
+    import oseti   # pip install oseti
+    
+    analyzer = oseti.Analyzer()  # グローバルに 1 度だけ生成
+    
+    # ▼ボタンを押したあと形態素解析を回している所に追記
+    analysis_results = analyzer_mecab.analyze_column(df, column_to_analyze)
+    
+    # --- ↓ここから 追加 ----
+    # 1行ごとにスコア計算（空白なら0）
+    sent_scores = [
+        analyzer.analyze(str(txt))[0] if str(txt).strip() else 0.0
+        for txt in df[column_to_analyze]
+    ]
+    df["sentiment_score"] = sent_scores
+    # --------------------------------
+    
+    st.dataframe(
+        df.sort_values("sentiment_score", ascending=False),  # デフォルトは降順表示
+        use_container_width=True,
+    )
+    # しきい値でフィルタしたい場合
+    th = st.slider("スコア≧ の行だけ表示", -1.0, 1.0, 0.0, 0.05)
+    st.write("▼ 条件に合う行")
+    st.dataframe(df[df["sentiment_score"] >= th], use_container_width=True)
+    
+    ```
+    
+    ### ポイント
+    
+    1. **解析ループのあとで**同じ DataFrame に `sentiment_score` 列を追加するだけ。
+    2. **操作系**は Streamlit 標準ウィジェット（`st.slider`, `st.dataframe` の `sort_values` など）で完結。
+    3. Oseti は否定語の反転処理まで面倒をみてくれるので、短い授業コメントとの相性が良い。
+    
+    ---
+    
+    ## ③ スコアを CSV に書き戻しておく（後工程で便利）
+    
+    ```python
+    if st.button("スコア付きCSVをダウンロード"):
+        out_csv = df.to_csv(index=False).encode("utf-8-sig")
+        st.download_button("download", out_csv, file_name="scored_" + selected_file)
+    
+    ```
+    
+    ---
+    
+    ## ④ 精度を上げたくなったら…
+    
+    | 改善策 | 効果 | 実装メモ |
+    | --- | --- | --- |
+    | **辞書チューニング** | 「まあまあ」「普通」など曖昧語に 0 〜 +0.2 を手で割り当て | Oseti 付属辞書は上書きできる |
+    | **NEologd 形態素解析** | 新語（「履修者」など）が切り出しやすい | `MeCab.Tagger("-d /path/to/neologd")` |
+    | **BERT 微調整** | 曖昧表現・文脈判断が向上 | 評価点（1–5）を教師データにして fine-tune |
+    
+    ---
+    
+    ## ⑤ 次の TODO
+    
+    1. **学科・年度の軸で平均スコアを集計**
+        
+        → `groupby(["学科","年度"])["sentiment_score"].mean()`
+        
+    2. **Word2Vec 特徴 × スコアの回帰分析**
+        
+        → どのキーワードが満足度に寄与しているか可視化
+        
+    3. **レポート自動生成**（Streamlit + `st.download_button` で Markdown / PDF）
+    
+    これで「自由記述一行をスコアで表し、スライダーや並べ替えで操作できる」環境がほぼ完成します。
+    
+    まずは **Oseti を足して 1 列追加** — ぜひ手元のアプリに貼って動かしてみてください！

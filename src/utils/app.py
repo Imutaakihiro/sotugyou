@@ -1,7 +1,8 @@
+# 形態素解析アプリ
 import streamlit as st
 import pandas as pd
 import os
-from morphological_analyzer import MorphologicalAnalyzer # 作成したクラスをインポート
+from 形態素解析.morphological_analyzer import MorphologicalAnalyzer # 作成したクラスをインポート
 
 # --- 定数設定 ---
 TARGET_DIR = "2025 講義名" # CSVファイルが格納されているディレクトリ
